@@ -1,22 +1,29 @@
-// src/components/TextOption.js
 import React from 'react';
-import { Text, Billboard } from '@react-three/drei'; // Import Billboard
+import { Text } from '@react-three/drei';
+import { useThree } from '@react-three/fiber'; // Import useThree
 
 const TextOption = ({ text, position, onClick, font, depth }) => {
+  const { scene } = useThree(); // Get the scene
+
+  // Only render the Text if the scene is available
+  if (!scene) {
+    return null; // Or a placeholder if you prefer
+  }
+
   return (
-    <Billboard position={position}> {/* Wrap with Billboard */}
-      <Text
-        fontSize={0.2}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-        font={font}
-        depth={0.1}
-        onClick={onClick}
-      >
-        {text}
-      </Text>
-    </Billboard>
+    <Text
+      position={position}
+      rotation={[Math.PI / 2, 0, 0]}
+      fontSize={0.2}
+      color="white"
+      anchorX="center"
+      anchorY="middle"
+      font={font}
+      depth={depth}
+      onClick={onClick}
+    >
+      {text}
+    </Text>
   );
 };
 
