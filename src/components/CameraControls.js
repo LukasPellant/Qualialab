@@ -1,26 +1,54 @@
+// src/components/CameraControls.js
 import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
 
-const CameraControls = () => {
+const CameraControls = ({ targetPosition, onResetCamera }) => { // Receive onResetCamera
   const { camera, gl } = useThree();
   const controls = useRef();
 
   useEffect(() => {
-      // Set initial camera position
-      camera.position.set(2, 2, 5);
-      camera.lookAt(new THREE.Vector3(2, 0, 0));
-  }, [camera]); // Run only once when the camera changes
+    camera.position.set(0, 1, 7);
+    controls.current.target.set(0, 1.5, 0);
+  }, [camera]);
+
+  useEffect(() => {
+    const handleContextMenu = (event) => {
+      event.preventDefault();
+      onResetCamera(); // Call the function
+    };
+
+    const currentControls = controls.current;
+    if (currentControls) {
+        currentControls.domElement.addEventListener('contextmenu', handleContextMenu);
+    }
+
+    return () => {
+        if (currentControls) {
+            currentControls.domElement.removeEventListener('contextmenu', handleContextMenu);
+        }
+    };
+  }, [onResetCamera, controls]); // Include onResetCamera and controls in the dependency array
+
+  useEffect(() => {
+    if (targetPosition && controls.current) {
+      camera.position.x = targetPosition[0];
+      camera.position.y = targetPosition[1] - 1;
+      camera.position.z = targetPosition[2] + 4;
+      controls.current.target.set(targetPosition[0], targetPosition[1], targetPosition[2]);
+    }
+  }, [targetPosition, camera, controls]);
 
   useFrame(() => {
-    // Update the OrbitControls (this is important!)
     controls.current?.update();
-     camera.lookAt(new THREE.Vector3(2, 0, 0));
   });
 
   return (
-    <OrbitControls ref={controls} args={[camera, gl.domElement]} />
+    <OrbitControls
+      ref={controls}
+      args={[camera, gl.domElement]}
+      enablePan={false}
+    />
   );
 };
 
