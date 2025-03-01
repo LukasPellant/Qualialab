@@ -1,11 +1,44 @@
 import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { PerspectiveCamera } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { navigate } from 'gatsby';
-import { useSpring, animated } from '@react-spring/web';
+import { useSpring } from '@react-spring/web';
 import FPVDroneModel from '../components/FPVDroneModel';
-// import SimpleCube from '../components/SimpleCube';  <-- No longer needed
+import CameraControls from '../components/CameraControls';
+import * as THREE from 'three';
+
+const Background = () => {
+    const shaderMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          color1: { value: new THREE.Color('black') },
+          color2: { value: new THREE.Color('purple') },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec2 vUv;
+          uniform vec3 color1;
+          uniform vec3 color2;
+          void main() {
+            gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+          }
+        `,
+        side: THREE.BackSide, // Important: Render from the inside
+      });
+
+      return (
+        <mesh>
+            <sphereGeometry args={[50, 32, 32]} /> {/* Large sphere */}
+            <primitive object={shaderMaterial} attach="material"/>
+        </mesh>
+      );
+};
 
 const ProjectButton = () => {
     const meshRef = useRef();
@@ -57,13 +90,12 @@ const HomePage = () => {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas>
-        <PerspectiveCamera makeDefault position={[0, 0, 10]} />
-        <OrbitControls />
+        <CameraControls />
         <ambientLight intensity={0.5} />
         <directionalLight position={[1, 1, 1]} intensity={1} />
+        <Background />
         <ProjectButton />
         <FPVDroneButton />
-        {/* <SimpleCube position={[0, 2, 0]} color="green" />  <-- Remove this line */}
       </Canvas>
     </div>
   );
