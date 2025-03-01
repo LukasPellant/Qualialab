@@ -1,182 +1,150 @@
 import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-// ... other imports ...
 import PrinterModel from '../components/PrinterModel';
 import DroneModel from '../components/DroneModel';
 import font from '../fonts/Roboto-Regular.woff';
-import TextOption from '../components/TextOption';
+import { Text, Billboard } from '@react-three/drei';
 import CameraControls from '../components/CameraControls';
 import * as THREE from 'three';
+import { useSpring, animated } from '@react-spring/three';
 
 const Background = () => {
-    // ... (Background component remains unchanged) ...
+    // ... (Background component - No changes needed) ...
     const shaderMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          color1: { value: new THREE.Color('black') },
-          color2: { value: new THREE.Color('purple') },
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          varying vec2 vUv;
-          uniform vec3 color1;
-          uniform vec3 color2;
-          void main() {
-            gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-          }
-        `,
-        side: THREE.BackSide,
-      });
+      uniforms: {
+        color1: { value: new THREE.Color('darkslategray') },
+        color2: { value: new THREE.Color('purple') },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        uniform vec3 color1;
+        uniform vec3 color2;
+        void main() {
+          gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+    });
 
-      return (
-        <mesh>
-          <sphereGeometry args={[50, 32, 32]} />
-          <primitive object={shaderMaterial} attach="material" />
-        </mesh>
-      );
-};
-
-const PrinterButton = ({ setTargetPosition, setDroneClicked }) => {
-    // ... (PrinterButton component remains unchanged) ...
-    const [hovered, setHovered] = useState(false);
-    const color = hovered ? "hotpink" : "orange";
-    const printerRef = useRef();
+    const { backgroundOpacity } = useSpring({
+      from: { backgroundOpacity: 0 },
+      to: { backgroundOpacity: 1 },
+      config: { duration: 2000 },
+    });
 
     return (
-        <PrinterModel
-            ref={printerRef}
-            position={[-2, 1.5, 0]}
-            scale={hovered ? 0.12 : 0.1}
-            onClick={() => {
-                if (printerRef.current) {
-                    const currentPosition = printerRef.current.position;
-                    console.log("Printer Clicked - Setting target to:", currentPosition);
-                    setTargetPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
-                    setDroneClicked(false);
-                }
-            }}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            color={color}
-        />
+      <animated.mesh style={{ opacity: backgroundOpacity }}>
+        <sphereGeometry args={[50, 32, 32]} />
+        <primitive object={shaderMaterial} attach="material" />
+      </animated.mesh>
     );
 };
 
-const FPVDroneButton = ({ setTargetPosition, setDroneClicked, droneClicked, setActivePage }) => {
-    const [hovered, setHovered] = useState(false);
-    const color = hovered ? 'cyan' : 'lightblue';
-    const droneRef = useRef();
+const PrinterButton = ({ setTargetPosition }) => {
+    // ... (PrinterButton component - No changes needed) ...
+  const [hovered, setHovered] = useState(false);
+  const color = hovered ? "hotpink" : "orange";
+  const printerRef = useRef();
 
-    return (
-        <>
-            <DroneModel
-                ref={droneRef}
-                position={[1, 1.5, 0]}
-                onClick={() => {
-                    if (droneRef.current) {
-                        const currentPosition = droneRef.current.position;
-                        setTargetPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
-                    }
-                    setDroneClicked(true);
-                }}
-                onPointerOver={() => setHovered(true)}
-                onPointerOut={() => setHovered(false)}
-                scale={hovered ? 4 : 3.5}
-                color={color}
-            />
-
-            {/* Wrap TextOptions in a group */}
-            <group visible={droneClicked}>
-                <TextOption
-                    position={[
-                        droneRef.current ? droneRef.current.position.x : 1,
-                        droneRef.current ? droneRef.current.position.y - 0.7 : 0.8,
-                        droneRef.current ? droneRef.current.position.z + 0.5 : 0.5,
-                    ]}
-                    text="All equipment"
-                    font={font}
-                    onClick={() => setActivePage('equipment')}
-                    depth={0.1}
-                />
-                <TextOption
-                    position={[
-                        droneRef.current ? droneRef.current.position.x : 1,
-                        droneRef.current ? droneRef.current.position.y - 1.0 : 0.5,
-                        droneRef.current ? droneRef.current.position.z + 0.5 : 0.5,
-                    ]}
-                    text="Video journey"
-                    font={font}
-                    onClick={() => setActivePage('video')}
-                    depth={0.1}
-                />
-                <TextOption
-                    position={[
-                        droneRef.current ? droneRef.current.position.x : 1,
-                        droneRef.current ? droneRef.current.position.y - 1.3 : 0.2,
-                        droneRef.current ? droneRef.current.position.z + 0.5 : 0.5,
-                    ]}
-                    text="Latest flying skills"
-                    font={font}
-                    onClick={() => setActivePage('skills')}
-                    depth={0.1}
-                />
-            </group>
-        </>
-    );
+  return (
+    <group>
+      <PrinterModel
+        ref={printerRef}
+        position={[-2, 1.5, 0]}
+        scale={hovered ? 0.12 : 0.1}
+        onClick={() => {
+          if (printerRef.current) {
+            const currentPosition = printerRef.current.position;
+            setTargetPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
+          }
+        }}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        color={color}
+      />
+      <Billboard position={[-2, 3.5, 0]}>
+        <Text visible={hovered} fontSize={0.4} color="white" font={font}>
+          Projects
+        </Text>
+      </Billboard>
+    </group>
+  );
 };
 
+const FPVDroneButton = ({ setTargetPosition }) => {
+    // ... (FPVDroneButton component - No changes needed) ...
+  const [hovered, setHovered] = useState(false);
+  const color = hovered ? 'cyan' : 'lightblue';
+  const droneRef = useRef();
+
+  return (
+    <group>
+      <DroneModel
+        ref={droneRef}
+        position={[1, 1.5, 0]}
+        onClick={() => {
+          if (droneRef.current) {
+            const currentPosition = droneRef.current.position;
+            setTargetPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
+          }
+        }}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        scale={hovered ? 4.5 : 3.5}
+        color={color}
+      />
+
+      <Billboard position={[1, 3, 0]}>
+        <Text visible={hovered} fontSize={0.4} color="white" font={font}>
+          FPV Journey
+        </Text>
+      </Billboard>
+    </group>
+  );
+};
 
 const HomePage = () => {
   const [targetPosition, setTargetPosition] = useState([0, 0, 0]);
-  const [droneClicked, setDroneClicked] = useState(false);
-  const [activePage, setActivePage] = useState('home'); // 'home', 'equipment', 'video', 'skills'
 
-    const handleResetCamera = () => {
-        setTargetPosition([0, 0, 0]);
-        setDroneClicked(false);
-    };
+  const handleResetCamera = () => {
+    setTargetPosition([0, 0, 0]);
+  };
+
+    const { lightIntensity } = useSpring({
+        from: { lightIntensity: 0 }, // Start with 0 intensity
+        to: { lightIntensity: 1 },
+        config: { duration: 2000 },
+    });
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <Canvas style={{position: 'absolute', top: 0, left: 0}}>
+      <Canvas style={{ position: 'absolute', top: 0, left: 0 }}>
         <CameraControls targetPosition={[...targetPosition]} onResetCamera={handleResetCamera} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[1, 1, 1]} intensity={1} />
+        <animated.ambientLight intensity={lightIntensity} color="#888888" />
+        <animated.directionalLight
+          position={[5, 5, 5]}
+          intensity={lightIntensity} // Use animated intensity
+          color="white"
+        />
+        <animated.pointLight position={[-3, 4, -3]} intensity={lightIntensity} color="#ffcc88" />
+        <hemisphereLight
+             skyColor={"mediumpurple"}
+             groundColor={"darkslategray"}
+             intensity={1} //Keep it at 1
+        />
         <Background />
-        <PrinterButton setTargetPosition={setTargetPosition} setDroneClicked={setDroneClicked}/>
-        <FPVDroneButton setTargetPosition={setTargetPosition} setDroneClicked={setDroneClicked} droneClicked={droneClicked} setActivePage={setActivePage} />
+        <PrinterButton setTargetPosition={setTargetPosition} />
+        <FPVDroneButton setTargetPosition={setTargetPosition} />
       </Canvas>
 
-      {/* Content Area with smoother transition */}
-      <div style={{
-          position: 'absolute',
-          top: '100vh',
-          left: 0,
-          width: '100vw',
-          transition: 'opacity 0.5s ease-in-out', // CSS Transition
-          opacity: activePage !== 'home' ? 1 : 0, // Show/hide with opacity
-          pointerEvents: activePage !== 'home' ? 'auto' : 'none' // Disable clicks when hidden
-        }}>
-        {activePage === 'equipment' && <div><h2>Equipment Page</h2><p>Information about my 3D printer and FPV drone will go here.</p></div>}
-        {activePage === 'video' && <div><h2>Video Journey</h2><p>Videos of my FPV drone flights will be displayed here.</p></div>}
-        {activePage === 'skills' && <div><h2>Latest Flying Skills</h2><p>Information and demonstrations of my flying skills will go here.</p></div>}
-      </div>
-
-      {/* Home Page Content (Visible only when activePage is 'home') */}
-      <div style={{
-          position: 'absolute',
-          top: '100vh',
-          left: 0,
-          width: '100vw',
-          transition: 'opacity 0.5s ease-in-out',
-          opacity: activePage === 'home' ? 1 : 0,
-          pointerEvents: activePage === 'home' ? 'auto' : 'none'
-      }}>
+      <div style={{ position: 'absolute', top: '100vh', left: 0, width: '100vw' }}>
         <h2>Welcome to the Home Page!</h2>
       </div>
     </div>
