@@ -4,20 +4,21 @@
 import React, { useState, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
-import Image from 'next/image'; // Import Image
-import { TextureLoader, PlaneGeometry, MeshBasicMaterial } from 'three'; // Import TextureLoader
-import { useLoader } from '@react-three/fiber';
+import { TextureLoader } from 'three';
+import { useLoader } from '@react-three/fiber'
 
 interface ButtonProps {
     text: string;
     onClick?: () => void;
+    icon: string | null; // Ikonu povolíme jako null
+    position: [number, number, number]
 }
 
-const Button = ({ text, onClick }: ButtonProps) => {
+const Button = React.forwardRef<THREE.Group, ButtonProps>(({ text, onClick, icon, position }: ButtonProps, ref) => {
     const [hovered, setHovered] = useState(false);
     const [scale, setScale] = useState(1);
     const groupRef = useRef<THREE.Group>(null); // Reference to the group
-    const texture = useLoader(TextureLoader, '/icons/printer.png')
+    const texture = icon ? useLoader(TextureLoader, icon) : null; // Podmíněné načítání textury
 
     useFrame(() => {
         if (hovered && scale < 1.15) {
@@ -35,10 +36,11 @@ const Button = ({ text, onClick }: ButtonProps) => {
 
     return (
         <group
-            ref={groupRef}
+            ref={ref}
             onClick={onClick}
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
+            position = {position}
         >
             <Text
                 position={[0, -0.3, 0]} // Posuň text dolů
@@ -55,7 +57,7 @@ const Button = ({ text, onClick }: ButtonProps) => {
                 font="/fonts/Roboto-Regular.ttf"
                 text={text}
             />
-             {hovered && (
+             {hovered && texture && (
                 <mesh position={[0, 0.7, 0]}>
                   <planeGeometry args={[1, 1]} />
                   <meshBasicMaterial map={texture} transparent={true} />
@@ -63,6 +65,7 @@ const Button = ({ text, onClick }: ButtonProps) => {
             )}
         </group>
     );
-};
+});
 
+Button.displayName = 'Button';
 export default Button;
