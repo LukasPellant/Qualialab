@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['localhost'], // Důležité pro lokální vývoj!
+  },
+}
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
+module.exports = nextConfig
