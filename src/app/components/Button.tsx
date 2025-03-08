@@ -10,29 +10,32 @@ import { useLoader } from '@react-three/fiber'
 interface ButtonProps {
     text: string;
     onClick?: () => void;
-    icon: string | null; // Ikonu povolíme jako null
+    icon: string | null;
     position: [number, number, number]
 }
 
 const Button = React.forwardRef<THREE.Group, ButtonProps>(({ text, onClick, icon, position }: ButtonProps, ref) => {
     const [hovered, setHovered] = useState(false);
     const [scale, setScale] = useState(1);
-    const groupRef = useRef<THREE.Group>(null); // Reference to the group
-    const texture = icon ? useLoader(TextureLoader, icon) : null; // Podmíněné načítání textury
+    const groupRef = useRef<THREE.Group>(null);
+    const texture = icon ? useLoader(TextureLoader, icon) : null;
 
-    useFrame(() => {
+    useFrame(() => { // ODSTRANÍME KOMENTÁŘE
+        // Plynulá změna scale
         if (hovered && scale < 1.15) {
             setScale(scale + 0.01);
         } else if (!hovered && scale > 1) {
             setScale(scale - 0.01);
         }
+
+        // Aplikace scale na group
         if (groupRef.current) {
             groupRef.current.scale.set(scale, scale, scale);
         }
     });
 
-    const hoverColor = '#009eff'; // Barva při najetí myší
-    const defaultColor = 'white'; // Defaultní barva textu
+    const hoverColor = '#009eff';
+    const defaultColor = 'white';
 
     return (
         <group
@@ -40,12 +43,12 @@ const Button = React.forwardRef<THREE.Group, ButtonProps>(({ text, onClick, icon
             onClick={onClick}
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
-            position = {position}
+            position={position}
         >
             <Text
-                position={[0, -0.3, 0]} // Posuň text dolů
+                position={[0, -0.3, 0]}
                 fontSize={0.5}
-                color={hovered ? hoverColor : defaultColor} // Ternární operátor pro barvu
+                color={hovered ? hoverColor : defaultColor}
                 anchorX="center"
                 anchorY="middle"
                 curveSegments={32}
@@ -57,10 +60,10 @@ const Button = React.forwardRef<THREE.Group, ButtonProps>(({ text, onClick, icon
                 font="/fonts/Roboto-Regular.ttf"
                 text={text}
             />
-             {hovered && texture && (
+            {hovered && texture && (
                 <mesh position={[0, 0.7, 0]}>
-                  <planeGeometry args={[1, 1]} />
-                  <meshBasicMaterial map={texture} transparent={true} />
+                    <planeGeometry args={[1, 1]} />
+                    <meshBasicMaterial map={texture} transparent={true} />
                 </mesh>
             )}
         </group>
