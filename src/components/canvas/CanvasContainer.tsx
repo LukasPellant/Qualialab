@@ -33,6 +33,11 @@ const CanvasContainer = () => {
           alpha: true, // Transparent background
           powerPreference: 'high-performance',
         }}
+        camera={{
+          fov: 45,
+          near: 0.1,
+          far: 200
+        }}
       >
         <Suspense fallback={null}>
           <Scene isMobile={isMobile} />
