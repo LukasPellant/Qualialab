@@ -99,7 +99,7 @@ function LandingPage() {
         sx={{
           pt: 12,
           pb: 8,
-          background: 'linear-gradient(45deg, #2E3B55 30%, #1E2A40 90%)',
+          background: 'transparent', // Use global theme background
           color: 'white',
           textAlign: 'center',
         }}
@@ -111,7 +111,7 @@ function LandingPage() {
           <Typography variant="h5" component="p" color="text.secondary" sx={{ mb: 4, animation: `${fadeIn} 2s ease-out`, color: 'rgba(255, 255, 255, 0.7)' }}>
             Místo pro experimenty, vývoj a kreativní FPV létání.
           </Typography>
-          <Button variant="contained" color="primary" size="large" component={Link} to="/video-archive" sx={{ animation: `${float} 3s ease-in-out infinite` }}>
+          <Button variant="contained" color="primary" size="large" component={Link} to="/archive" sx={{ animation: `${float} 3s ease-in-out infinite` }}>
             Prozkoumat videa
           </Button>
         </Container>
@@ -186,7 +186,7 @@ function LandingPage() {
                     {project.title}
                   </Typography>
                   <Chip label={project.status} color={project.status === 'Ve vývoji' ? 'warning' : project.status === 'Plánováno' ? 'info' : 'default'} sx={{ mb: 2 }} />
-                  <Typography paragraph color="text.secondary">
+                  <Typography paragraph color="text.secondary" sx={{ textAlign: 'center' }}>
                     {project.description}
                   </Typography>
                   <Button component={Link} to={project.link} variant="outlined">Více informací</Button>

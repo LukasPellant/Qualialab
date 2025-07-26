@@ -45,7 +45,7 @@ function Projects() {
                   {project.title}
                 </Typography>
                 <Chip label={project.status} color={project.status === 'Ve vývoji' ? 'warning' : project.status === 'Plánováno' ? 'info' : 'default'} sx={{ mb: 2 }} />
-                <Typography paragraph color="text.secondary">
+                <Typography paragraph color="text.secondary" sx={{ textAlign: 'center' }}>
                   {project.description}
                 </Typography>
               </CardContent>

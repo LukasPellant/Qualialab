@@ -5,7 +5,6 @@
 
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.9);
-  background-color: #0A0A0A; /* Very dark background from theme */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,6 +24,7 @@ a:hover {
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: transparent; /* Ensure body is transparent to show theme background */
 }
 
 #root {

@@ -12,8 +12,8 @@ const theme = createTheme({
       main: '#FF69B4', // Hot Pink for accent
     },
     background: {
-      default: '#0A0A0A', // Very dark background
-      paper: '#1A1A1A',   // Slightly lighter for surfaces
+      default: 'linear-gradient(135deg, #0A0A2A 0%, #1A0A3A 100%)', // Dark blue gradient background
+      paper: '#1A1A2A',   // Slightly lighter for surfaces
     },
     text: {
       primary: '#ffffff',
@@ -51,7 +51,7 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1A1A1A', // Use paper color for app bar
+          backgroundColor: 'rgba(80, 0, 80, 0.9)', // Darker Magenta with opacity
           boxShadow: '0px 4px 10px rgba(0,0,0,0.5)',
         },
       },
@@ -59,7 +59,7 @@ const theme = createTheme({
     MuiCard: {
         styleOverrides: {
             root: {
-                backgroundColor: '#2A2A2A',
+                backgroundColor: 'rgba(80, 0, 80, 0.6)',
                 borderRadius: 12, // Apply rounded corners to cards
                 boxShadow: '0 4px 8px rgba(0,0,0,0.4)', // Subtle shadow
                 transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
@@ -84,6 +84,7 @@ const theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8, // Apply rounded corners to text fields
             boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
+            backgroundColor: 'rgba(80, 0, 80, 0.6)', // Darker Magenta with opacity
           },
         },
       },
@@ -93,6 +94,7 @@ const theme = createTheme({
         root: {
           borderRadius: 8, // Apply rounded corners to toggle buttons
           boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
+          backgroundColor: 'rgba(80, 0, 80, 0.6)', // Darker Magenta with opacity
         },
       },
     },
