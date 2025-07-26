@@ -1,3 +1,4 @@
 name = "qualialab"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-07-25"
+main = "src/worker.js"

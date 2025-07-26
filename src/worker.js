@@ -1,0 +1,1 @@
+export default { async fetch(req, env, ctx) { if(!new URL(req.url).pathname.startsWith('/search')) return fetch(req); const ip=req.headers.get('CF-Connecting-IP'); const key=`rl:${ip}`; const n=(await env.KV.get(key,{type:'text'}))||0; if(n>30) return new Response('⏳ Slow down',{status:429}); ctx.waitUntil(env.KV.put(key,+n+1,{expirationTtl:60})); return fetch(req);} };
