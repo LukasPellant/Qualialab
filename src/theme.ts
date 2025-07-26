@@ -51,7 +51,7 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(80, 0, 80, 0.9)', // Darker Magenta with opacity
+          backgroundColor: 'rgba(40, 0, 40, 0.5)', // Darker Purple with 50% opacity
           boxShadow: '0px 4px 10px rgba(0,0,0,0.5)',
         },
       },
@@ -59,7 +59,7 @@ const theme = createTheme({
     MuiCard: {
         styleOverrides: {
             root: {
-                backgroundColor: 'rgba(80, 0, 80, 0.6)',
+                backgroundColor: 'rgba(40, 0, 40, 0.5)',
                 borderRadius: 12, // Apply rounded corners to cards
                 boxShadow: '0 4px 8px rgba(0,0,0,0.4)', // Subtle shadow
                 transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
@@ -84,7 +84,7 @@ const theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8, // Apply rounded corners to text fields
             boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
-            backgroundColor: 'rgba(80, 0, 80, 0.6)', // Darker Magenta with opacity
+            backgroundColor: 'rgba(40, 0, 40, 0.5)', // Darker Purple with 50% opacity
           },
         },
       },
@@ -94,7 +94,7 @@ const theme = createTheme({
         root: {
           borderRadius: 8, // Apply rounded corners to toggle buttons
           boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
-          backgroundColor: 'rgba(80, 0, 80, 0.6)', // Darker Magenta with opacity
+          backgroundColor: 'rgba(40, 0, 40, 0.5)', // Darker Purple with 50% opacity
         },
       },
     },

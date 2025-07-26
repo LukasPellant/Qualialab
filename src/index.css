@@ -24,7 +24,7 @@ a:hover {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: transparent; /* Ensure body is transparent to show theme background */
+  background: linear-gradient(135deg, #0A0A2A 0%, #1A0A3A 100%); /* Dark blue gradient background */
 }
 
 #root {

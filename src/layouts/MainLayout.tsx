@@ -5,7 +5,7 @@ import { Link, Outlet } from 'react-router-dom';
 const MainLayout = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <AppBar position="sticky" sx={{ bgcolor: 'rgba(18, 18, 18, 0.8)', backdropFilter: 'blur(10px)' }}>
+        <AppBar position="sticky" sx={{ bgcolor: 'rgba(80, 0, 80, 0.9)', backdropFilter: 'blur(10px)' }}>
           <Toolbar>
             <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, color: 'inherit', textDecoration: 'none', fontWeight: 700 }}>
               QualiaLab
