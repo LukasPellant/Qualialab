@@ -42,7 +42,7 @@ const projects = [
     description: 'Webová stránka pro nahrávání a sdílení FPV videí. Postaveno na Reactu s Material-UI a připraveno pro nasazení na Cloudflare.',
     status: 'Ve vývoji',
     tags: ['React', 'TypeScript', 'Material-UI', 'Cloudflare'],
-    link: '/video-archive'
+    link: '/archive'
   },
   {
     title: 'Three.js Particle Simulator',

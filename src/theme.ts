@@ -6,18 +6,18 @@ const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#90caf9', // A light blue, good for primary actions
+      main: '#8B008B', // Dark Magenta
     },
     secondary: {
-      main: '#f48fb1', // A light pink, for secondary actions
+      main: '#FF69B4', // Hot Pink for accent
     },
     background: {
-      default: '#121212', // Standard dark background
-      paper: '#1e1e1e',   // Slightly lighter for surfaces like cards and menus
+      default: '#0A0A0A', // Very dark background
+      paper: '#1A1A1A',   // Slightly lighter for surfaces
     },
     text: {
       primary: '#ffffff',
-      secondary: '#b0bec5', // Lighter grey for secondary text
+      secondary: '#e0e0e0', // Lighter grey for secondary text
     },
   },
   typography: {
@@ -44,27 +44,58 @@ const theme = createTheme({
         fontWeight: 500,
     }
   },
+  shape: {
+    borderRadius: 12, // More rounded corners
+  },
   components: {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1e1e1e', // Use paper color for app bar
-          boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+          backgroundColor: '#1A1A1A', // Use paper color for app bar
+          boxShadow: '0px 4px 10px rgba(0,0,0,0.5)',
         },
       },
     },
     MuiCard: {
         styleOverrides: {
             root: {
-                backgroundColor: '#2c2c2c',
+                backgroundColor: '#2A2A2A',
+                borderRadius: 12, // Apply rounded corners to cards
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4)', // Subtle shadow
                 transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
                 '&:hover': {
                     transform: 'scale(1.03)',
-                    boxShadow: '0 8px 16px 0 rgba(0,0,0,0.5)'
+                    boxShadow: '0 12px 24px 0 rgba(0,0,0,0.6)'
                 }
             }
         }
-    }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8, // Apply rounded corners to buttons
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 8, // Apply rounded corners to text fields
+            boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
+          },
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8, // Apply rounded corners to toggle buttons
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)', // Subtle shadow
+        },
+      },
+    },
   },
 });
 
