@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { Container, Stack, Card, CardActionArea, CardMedia, CardContent, Typography, Box, CircularProgress, TextField } from '@mui/material';
+import { Container, Stack, Card, CardActionArea, CardMedia, CardContent, Typography, Box, CircularProgress, TextField, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import { Link } from 'react-router-dom';
 
@@ -17,6 +17,7 @@ function VideoArchive() {
   const [videos, setVideos] = useState<VideoFile[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [droneSizeFilter, setDroneSizeFilter] = useState<string | null>(null);
 
   const fetchVideos = useCallback(async () => {
     setLoadingVideos(true);
@@ -46,13 +47,24 @@ function VideoArchive() {
     fetchVideos();
   }, [fetchVideos]);
 
-  const filteredVideos = videos.filter(video =>
-    video.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleDroneSizeFilterChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    newFilter: string | null,
+  ) => {
+    setDroneSizeFilter(newFilter);
+  };
+
+  const filteredVideos = videos
+    .filter(video =>
+      video.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(video =>
+        droneSizeFilter ? video.droneSize === droneSizeFilter : true
+    );
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
         <TextField 
           label="Hledat videa..."
           variant="outlined"
@@ -60,6 +72,22 @@ function VideoArchive() {
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{ width: '50%' }}
         />
+        <ToggleButtonGroup
+            value={droneSizeFilter}
+            exclusive
+            onChange={handleDroneSizeFilterChange}
+            aria-label="drone size filter"
+        >
+            <ToggleButton value="5inch" aria-label="5 inch">
+                5inch
+            </ToggleButton>
+            <ToggleButton value="2inch" aria-label="2 inch">
+                2inch
+            </ToggleButton>
+            <ToggleButton value="whoop" aria-label="whoop">
+                Whoop
+            </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
 
       {loadingVideos ? (
@@ -68,13 +96,14 @@ function VideoArchive() {
           <Typography variant="h6" ml={2}>Načítám videa...</Typography>
         </Box>
       ) : (
-        <Stack direction="row" spacing={4} useFlexGap flexWrap="wrap" justifyContent="center">
+        <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap" justifyContent="center">
           {filteredVideos.length > 0 ? (
             filteredVideos.map((video) => (
               <Card
                 key={video.uid}
                 sx={{
                   width: { xs: '100%', sm: '45%', md: '30%', lg: '22%' },
+                  maxWidth: '280px'
                 }}
               >
                 <CardActionArea component={Link} to={`/videos/${video.uid}`}>
@@ -82,7 +111,7 @@ function VideoArchive() {
                     component="img"
                     image={video.thumbnail}
                     alt={video.name}
-                    sx={{ height: 180, objectFit: 'cover' }}
+                    sx={{ height: 140, objectFit: 'cover' }}
                   />
                   <CardContent>
                     <Typography gutterBottom variant="h6" component="div" noWrap>

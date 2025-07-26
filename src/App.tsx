@@ -13,11 +13,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing page without MainLayout */}
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* Other pages with MainLayout */}
         <Route element={<MainLayout />}>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/archive" element={<VideoArchive />} />
           <Route path="/videos/:uid" element={<VideoPlayerPage />} />
           <Route path="/projects" element={<Projects />} />

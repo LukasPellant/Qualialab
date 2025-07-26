@@ -16,10 +16,10 @@ const projects = [
     tags: ['Three.js', 'WebGL', 'JavaScript']
   },
   {
-    title: 'IoT Domácí Automatizace',
-    description: 'Systém pro monitorování a ovládání domácích zařízení pomocí Raspberry Pi a senzorů. Data jsou vizualizována v real-time dashboardu.',
-    status: 'Koncept',
-    tags: ['IoT', 'Raspberry Pi', 'Python', 'MQTT']
+    title: 'Amazing Hand',
+    description: 'Open-source, 3D tisknutelná robotická ruka. Projekt zaměřený na robotiku a 3D tisk.',
+    status: 'Plánováno',
+    tags: ['Robotika', '3D Tisk', 'Open Source']
   }
 ];
 
