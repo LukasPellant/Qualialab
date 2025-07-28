@@ -1,0 +1,7 @@
+index-Dn1K7li5.js:4294 Uncaught TypeError: Cannot set properties of undefined (setting 'aspect')
+    at _onResize (index-Dn1K7li5.js:4294:409)
+index-Dn1K7li5.js:4294 Uncaught TypeError: Cannot set properties of undefined (setting 'z')
+    at HTMLDivElement._onMouseDown (index-Dn1K7li5.js:4294:806)
+_onMouseDown @ index-Dn1K7li5.js:4294
+index-Dn1K7li5.js:4294 Uncaught TypeError: Cannot set properties of undefined (setting 'z')
+    at HTMLDivElement._onMouseUp (index-Dn1K7li5.js:4294:843)

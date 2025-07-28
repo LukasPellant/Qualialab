@@ -1,7 +1,8 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Stack, Card, CardActionArea, CardMedia, CardContent, Typography, Box, CircularProgress, TextField, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import { Link } from 'react-router-dom';
 
 interface VideoFile {
   name: string;
@@ -17,10 +18,6 @@ function VideoArchive() {
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [droneSizeFilter, setDroneSizeFilter] = useState<string | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<VideoFile | null>(null);
-  const [playerPos, setPlayerPos] = useState({ x: 100, y: 100 });
-  const [dragging, setDragging] = useState(false);
-  const dragStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
   const fetchVideos = useCallback(async () => {
     setLoadingVideos(true);
@@ -50,31 +47,6 @@ function VideoArchive() {
     fetchVideos();
   }, [fetchVideos]);
 
-  useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      if (dragging && dragStartRef.current) {
-        const dx = e.clientX - dragStartRef.current.x;
-        const dy = e.clientY - dragStartRef.current.y;
-        setPlayerPos({
-          x: dragStartRef.current.left + dx,
-          y: dragStartRef.current.top + dy,
-        });
-      }
-    };
-    const onMouseUp = () => {
-      if (dragging) {
-        setDragging(false);
-        dragStartRef.current = null;
-      }
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    return () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-  }, [dragging]);
-
   const handleDroneSizeFilterChange = (
     _event: React.MouseEvent<HTMLElement>,
     newFilter: string | null,
@@ -90,8 +62,7 @@ function VideoArchive() {
         droneSizeFilter ? video.droneSize === droneSizeFilter : true
     );
 
-return (
-  <>
+  return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
         <TextField 
@@ -135,7 +106,7 @@ return (
                   maxWidth: '280px'
                 }}
               >
-              <CardActionArea onClick={() => setSelectedVideo(video)}>
+                <CardActionArea component={Link} to={`/videos/${video.uid}`}>
                   <CardMedia
                     component="img"
                     image={video.thumbnail}
@@ -166,59 +137,7 @@ return (
         </Stack>
       )}
     </Container>
-
-    {selectedVideo && (
-      <Box
-        sx={{
-          position: 'fixed',
-          top: playerPos.y,
-          left: playerPos.x,
-          width: '640px',
-          height: '360px',
-          backgroundColor: 'background.paper',
-          boxShadow: 24,
-          resize: 'both',
-          overflow: 'hidden',
-          zIndex: (theme) => theme.zIndex.modal,
-        }}
-      >
-        <Box
-          onMouseDown={(e) => {
-            dragStartRef.current = {
-              x: e.clientX,
-              y: e.clientY,
-              left: playerPos.x,
-              top: playerPos.y,
-            };
-            setDragging(true);
-          }}
-          sx={{
-            cursor: 'move',
-            backgroundColor: 'primary.main',
-            color: 'primary.contrastText',
-            px: 1,
-            py: 0.5,
-            userSelect: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Typography variant="subtitle1">{selectedVideo.name}</Typography>
-          <Box component="span" sx={{ cursor: 'pointer', ml: 1 }} onClick={() => setSelectedVideo(null)}>
-            &#10005;
-          </Box>
-        </Box>
-        <iframe
-          src={`https://iframe.videodelivery.net/${selectedVideo.uid}`}
-          style={{ width: '100%', height: 'calc(100% - 32px)', border: 'none' }}
-          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-          allowFullScreen
-        />
-      </Box>
-    )}
-  </>
-);
+  );
 }
 
 export default VideoArchive;

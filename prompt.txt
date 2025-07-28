@@ -1,0 +1,99 @@
+**PROMPT PRO GEMINI CLI**
+
+Jazyk: JavaScript (ES module)  
+Úkol: Vytvoř samostatný sandboxový modul s názvem **“QuantumInk”**, který lze vložit do libovolné existující web‑stránky. Modul implementuje GPU‑akcelerovaný simulátor částic inspirovaný inkoustem ve vodě, běžící v Three.js. Požadavky →  
+
+1. **API**  
+   ```js
+   import { QuantumInk } from './QuantumInk.js';  
+   // parent = DOM element, options = volitelná konfigurace
+   const qi = new QuantumInk(parent, { particleCount: 1_048_576 });
+   // exposed helpers:
+   qi.exportPNG();   // uloží canvas do PNG
+   qi.destroy();     // uklidí FBO, eventy
+Displej & výkon
+
+WebGL2 only, využij ping‑pong FBO (pos/vel) 1024×1024 → 1 M částic.
+
+Vertex instancing přes THREE.InstancedBufferGeometry.
+
+Částečky = sprites s additive blending, alpha fall‑off.
+
+Shadery:
+
+Simulation FS: pos += curlNoise(pos*0.5, time)*0.6 + userForces.
+
+Render VS: čte pozice z texture, předává rychlost do varyings pro barvu.
+
+60 FPS i na integrovaných GPU.
+
+Turbulence & vizuál
+
+Vlastní GLSL funkce curlNoise(vec3 p, float t) (4D simplex).
+
+Hue = mix rychlosti a životnosti, saturace mírně fade‑out.
+
+Post‑processing: UnrealBloomPass + minimální chromatic aberration ShaderPass.
+
+Background zůstává transparentní (canvas může sedět na jakémkoli layoutu).
+
+Interakce
+
+Mouse / Touch: přitahuje (levé) / odpuzuje (pravé) částice. Síla exponenciálně klesá s vzdáleností.
+
+Shift + click/tap: vytváří „černou díru“ (absorpce, life=0).
+
+Mikrofon: pokud uživatel povolí, FFT amplituda moduluje turbulence a bloom intensity. Fallback → jen time‑based noise.
+
+Klávesy:
+
+E – export aktuálního frame do PNG.
+
+H – toggle help overlay (Canvas2D nad WebGL).
+
+Kódová struktura
+
+javascript
+Zkopírovat
+Upravit
+QuantumInk.js
+├─ class QuantumInk
+│   ├─ constructor(parent, opts)         // init renderer, scene, camera
+│   ├─ _initFBO()                        // připraví renderTargets A/B
+│   ├─ _createShaders()                  // sim + render shadery
+│   ├─ _addPostprocessing()              // bloom & chromAb
+│   ├─ _addEvents()                      // mouse, mic, resize
+│   ├─ _update(dt)                       // gpuCompute + composer.render
+│   ├─ exportPNG()
+│   └─ destroy()
+└─ shaders/
+    ├─ sim.frag.glsl
+    ├─ render.vert.glsl
+    └─ chromAber.frag.glsl
+Bez závislostí navíc
+
+Pouze three@^0.165.0 + /examples/jsm/postprocessing/*.
+
+Nepoužívej externí builder; modul musí jít importovat přímo z ESM.
+
+Dokumentace v komentářích
+
+Krátké JSDoc nad public API.
+
+V kódu popiš ping‑pong mechaniku a curlNoise jen v několika větách.
+
+Kvalita & styl
+
+Lint‑friendly, export class QuantumInk { … } jako jediný export.
+
+Použij moderní JS (async/await jen kde nutné).
+
+Pojmenování proměnných srozumitelné, bez magie.
+
+Respektuj dělku řádků ~100 znaků; odděluj logické bloky.
+
+VÝSTUP: kompletní soubor QuantumInk.js + podadresář shaders/ s uvedenými GLSL soubory. Nevypisuj HTML wrapper ani bundler config. Všechno dodej v jednom bloku kódu tak, aby šlo okamžitě zkopírovat do projektu.
+
+makefile
+Zkopírovat
+Upravit

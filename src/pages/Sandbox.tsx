@@ -1,9 +1,20 @@
-
-import { Typography, Container, Box, AppBar, Toolbar, Paper } from '@mui/material';
+import { Box, AppBar, Toolbar, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import GrainIcon from '@mui/icons-material/Grain';
+import { useEffect, useRef } from 'react';
+import { QuantumInk } from '../QuantumInk';
 
 function Sandbox() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const quantumInk = new QuantumInk(containerRef.current);
+      return () => {
+        quantumInk.destroy();
+      };
+    }
+  }, []);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -14,34 +25,17 @@ function Sandbox() {
         </Toolbar>
       </AppBar>
       <Box
+        ref={containerRef}
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: 'calc(100vh - 64px)', // 64px je výška Appbaru
-          background: 'radial-gradient(circle, rgba(63,94,251,0.1) 0%, rgba(252,70,107,0.1) 100%)',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          zIndex: 0, // Ensure canvas is behind AppBar if needed
         }}
       >
-        <Container maxWidth="md">
-          <Paper 
-            elevation={12} 
-            sx={{ 
-              p: 4, 
-              textAlign: 'center', 
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '15px'
-            }}
-          >
-            <GrainIcon sx={{ fontSize: 80, mb: 2 }} />
-            <Typography variant="h2" component="h1" gutterBottom>
-              Sandbox
-            </Typography>
-            <Typography variant="h5" color="text.secondary" paragraph>
-              Již brzy zde naleznete interaktivní hřiště pro experimenty s Three.js a particle simulacemi.
-            </Typography>
-          </Paper>
-        </Container>
       </Box>
     </Box>
   );
