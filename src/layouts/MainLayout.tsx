@@ -17,7 +17,7 @@ const MainLayout = () => {
             <Button color="inherit" component={Link} to="/equipment">Vybavení</Button>
           </Toolbar>
         </AppBar>
-      <Container component="main" sx={{ flexGrow: 1, py: 4, backgroundColor: 'transparent' }}>
+      <Container component="main" sx={{ flexGrow: 1, backgroundColor: 'transparent' }} disableGutters>
         <Outlet />
       </Container>
       <Box component="footer" sx={{ bgcolor: 'background.paper', p: 2, textAlign: 'center' }}>

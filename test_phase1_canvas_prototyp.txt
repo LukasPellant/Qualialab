@@ -1,0 +1,124 @@
+## 14  Testovací fáze 1 – Canvas prototyp
+
+**Cíl:** Na stávajícím webu vytvořit stránku `/sandbox`, kde se v Three.js‑canvasu (React‑Three‑Fiber) experimentálně vykreslují placeholder objekty reprezentující *worker*, *budovu*, *farmu* a *les*. Tato fáze má ověřit render‑pipeline, světlo/kameru a jednoduchou interakci (zoom/rotace kamery).
+
+### 14.1  Závislosti
+```
+npm i three @react-three/fiber @react-three/drei zustand
+```
+
+### 14.2  Struktura složek (nové/poupravené)
+```
+/src
+  /pages
+    SandboxPage.jsx   ← nová stránka
+  /objects            ← atomické 3‑D prvky
+    Worker.jsx
+    Building.jsx
+    Farm.jsx
+    Forest.jsx
+  /stores
+    useSandboxStore.js
+```
+
+### 14.3  SandboxPage.jsx (výřez)
+```jsx
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Stats } from '@react-three/drei';
+import { Worker, Building, Farm, Forest } from '@/objects';
+import useSandboxStore from '@/stores/useSandboxStore';
+
+export default function SandboxPage() {
+  const { objects } = useSandboxStore();
+
+  return (
+    <div className="h-screen w-full">
+      <Canvas shadows camera={{ position: [8, 8, 8], fov: 50 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
+
+        {/* Dynamicky generované placeholdery */}
+        {objects.map((obj) => {
+          switch (obj.type) {
+            case 'worker':
+              return <Worker key={obj.id} {...obj} />;
+            case 'building':
+              return <Building key={obj.id} {...obj} />;
+            case 'farm':
+              return <Farm key={obj.id} {...obj} />;
+            case 'forest':
+              return <Forest key={obj.id} {...obj} />;
+            default:
+              return null;
+          }
+        })}
+
+        <OrbitControls makeDefault />
+        <Stats />
+      </Canvas>
+    </div>
+  );
+}
+```
+
+### 14.4  Objektové komponenty (příklad Worker.jsx)
+```jsx
+import { useFrame } from '@react-three/fiber';
+import { useRef } from 'react';
+
+export function Worker({ position = [0, 0.5, 0], speed = 0.01 }) {
+  const ref = useRef();
+
+  // jednoduchá animační smyčka
+  useFrame(() => {
+    if (!ref.current) return;
+    ref.current.rotation.y += 0.01; // placeholder „života“
+    ref.current.position.x += speed; // test pohybu
+  });
+
+  return (
+    <mesh ref={ref} position={position} castShadow>
+      <capsuleGeometry args={[0.3, 0.8, 4, 8]} />
+      <meshStandardMaterial />
+    </mesh>
+  );
+}
+```
+
+### 14.5  Globální store (useSandboxStore.js)
+```js
+import { create } from 'zustand';
+
+const useSandboxStore = create((set) => ({
+  objects: [
+    { id: 1, type: 'worker', position: [0, 0.5, 0] },
+    { id: 2, type: 'building', position: [2, 0.5, 0] },
+    { id: 3, type: 'farm', position: [-2, 0.01, -1] },
+    { id: 4, type: 'forest', position: [0, 0.5, -4] },
+  ],
+}));
+
+export default useSandboxStore;
+```
+
+### 14.6  Interakce & UI overlay
+
+- **OrbitControls**: myš pro zoom/pan/rotaci.
+- Shadcn **Card** v pravém dolním rohu s výčtem objektů (typ, ID, souřadnice), auto‑refresh.
+- Klávesa `R` resetuje scénu (`useSandboxStore().reset()`).
+
+### 14.7  Akceptační kritéria
+
+1. Stránka `/sandbox` se načte bez JS chyb; FPS > 50 na dektopu.
+2. Všechny placeholdery viditelné, vrhají stíny.
+3. OrbitControls funguje ve všech osách.
+4. Worker rotuje a pohybuje se diagonálně.
+5. Hot‑reload Reactu neodpojí WebGL kontekst.
+
+### 14.8  Odhad času / milníky
+
+| Den | Úkol                                   |
+| --- | -------------------------------------- |
+| 1   | Základní Canvas, OrbitControls, světla |
+| 2   | Objektové komponenty & Zustand store   |
+| 3   | UI overlay + hot‑reload fix            |

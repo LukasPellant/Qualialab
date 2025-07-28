@@ -15,6 +15,8 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
+    "@react-three/drei": "^10.6.1",
+    "@react-three/fiber": "^9.3.0",
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@types/three": "^0.178.1",
@@ -23,13 +25,15 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.0",
     "three": "^0.178.0",
-    "tsparticles": "^3.8.1"
+    "tsparticles": "^3.8.1",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "babel-plugin-import": "^1.13.8",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
