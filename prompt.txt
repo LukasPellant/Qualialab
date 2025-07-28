@@ -1,99 +1,62 @@
-**PROMPT PRO GEMINI CLI**
+Návrh struktury („wireframe v slovech“)
+Zóna	Umístění	Obsah & funkce	Poznámky k UX
+1. Horní lišta	fixně nahoře, 64 px	 - Logo
+- Hlavní sekce (Archiv, Projekty, Sandbox…) — text či ikony
+- Vpravo mini‑přehrávač v minimised stavu (pokud uživatel scrolluje dolů)	Lišta zůstává stále viditelná, aby byl rychlý přístup k sekcím i k aktuálně přehrávanému videu.
+2. Levý panel / playlist	 270–320 px šířka, plná výška	- Vyhledávání + filtr (kategorie: 5‑inch, 2‑inch, Whoop … případně štítky „2024“, „Race“…)
+- „Chytrý“ seznam videí: dlaždice nebo řádkový seznam s ikonou náhledu, názvem, délkou a datem
+- Možnost přepínat mezi Grid (4 sloupce miniaturních náhledů) a List (jeden sloupec s informacemi)	Panel je collapsible – klikem na ikonku „<“ se sbalí na úzký sloupec s ikonami.
+3. Hlavní přehrávač	pravá část, min 65 % šířky	- 16 : 9 player (zachová min. výšku 360 px, na velkých displejích max 720 px)
+- Pod přehrávačem: název, popis, štítky, tlačítka „Stáhnout“, „Sdílet“, „Zobrazit v projektech“	Při kliknutí na jiné video v playlistu se hladce nahradí (bez refresh celé stránky).
+4. Panel „další informace“	pod přehrávačem (desktop) / v kartě vedle přehrávače (tablet)	- Metadata: datum, lokace, použitý dron/kamera
+- Sekce Poznámky pro interní komentáře	Rozhodně oddělit vizuálně od popisu videa (jemný card se stínem).
+5. Dolní lišta (volitelné)	fixně dole, 48 px	- Zkrácený ovladač přehrávání při scrollu (Play/Pause, timeline) + název videa	Pomáhá u dlouhých seznamů — uživatel nemusí scrollovat nahoru k hlavnímu přehrávači.
 
-Jazyk: JavaScript (ES module)  
-Úkol: Vytvoř samostatný sandboxový modul s názvem **“QuantumInk”**, který lze vložit do libovolné existující web‑stránky. Modul implementuje GPU‑akcelerovaný simulátor částic inspirovaný inkoustem ve vodě, běžící v Three.js. Požadavky →  
+Tok uživatele
+Landing na „Archiv“
+– Fokus v search poli, přehrávač prázdný => vyzývá k výběru videa.
 
-1. **API**  
-   ```js
-   import { QuantumInk } from './QuantumInk.js';  
-   // parent = DOM element, options = volitelná konfigurace
-   const qi = new QuantumInk(parent, { particleCount: 1_048_576 });
-   // exposed helpers:
-   qi.exportPNG();   // uloží canvas do PNG
-   qi.destroy();     // uklidí FBO, eventy
-Displej & výkon
+Výběr nebo vyhledání videa
+– Okamžitě se načte do přehrávače, playlist zvýrazní aktivní položku, scroll se ne(!)přenastaví (uživatel zůstane tam, kde je).
 
-WebGL2 only, využij ping‑pong FBO (pos/vel) 1024×1024 → 1 M částic.
+Přehrávání a navigace
+– Scrolluje‑li dál dolů seznamem, hlavní přehrávač se „zmenší“ do pravého dolního rohu (picture‑in‑picture feel), aby video zůstalo viditelné.
 
-Vertex instancing přes THREE.InstancedBufferGeometry.
+Mobilní režim (< 768 px)
 
-Částečky = sprites s additive blending, alpha fall‑off.
+Horní lišta kompaktní, menu jako hamburger.
 
-Shadery:
+Playlist se schová pod tahací zásuvku zespodu.
 
-Simulation FS: pos += curlNoise(pos*0.5, time)*0.6 + userForces.
+Přehrávač full‑width nahoře, ovladače pod ním.
 
-Render VS: čte pozice z texture, předává rychlost do varyings pro barvu.
+Vizuální styl
+Barevná paleta: navázat na stávající fialovou, ale zvýšit kontrast textu (výchozí bílá #FFFFFF80 → plná #FFFFFF).
 
-60 FPS i na integrovaných GPU.
+Stíny & hloubka: lehký shadow na kartách/playlistu pro vrstvení.
 
-Turbulence & vizuál
+Animace: 150 ms ease‑in‑out pro hover na dlaždicích a sbalení panelu; fade‑in playeru při výběru videa.
 
-Vlastní GLSL funkce curlNoise(vec3 p, float t) (4D simplex).
+Ikonografie: jednotná (lucide nebo heroicons) pro akce typu stahování, sdílení, filtr.
 
-Hue = mix rychlosti a životnosti, saturace mírně fade‑out.
+Mikrointerakce & detaily
+Klávesové zkratky:  / fokusuje vyhledávání, j/k skok na předchozí/další video, space pauza.
 
-Post‑processing: UnrealBloomPass + minimální chromatic aberration ShaderPass.
+Lazy‑loading náhledů: načti jen to, co je ve viewportu, a po 12 dlaždicích dotáhni další.
 
-Background zůstává transparentní (canvas může sedět na jakémkoli layoutu).
+Vybrat několik videí: shift‑click → hromadné akce („přidat do projektu“, „archivovat“).
 
-Interakce
+URL‑state: /archive?video=123 pro sdílení konkrétního záznamu, při refreshu se otevře rovnou.
 
-Mouse / Touch: přitahuje (levé) / odpuzuje (pravé) částice. Síla exponenciálně klesá s vzdáleností.
+Toasts v pravém dolním rohu pro potvrzení akcí.
 
-Shift + click/tap: vytváří „černou díru“ (absorpce, life=0).
+Shrnutí
+Dvousloupcový layout se sbalitelným levým playlistem je klíčový pro rychlou navigaci a přehlednost.
 
-Mikrofon: pokud uživatel povolí, FFT amplituda moduluje turbulence a bloom intensity. Fallback → jen time‑based noise.
+Hlavní přehrávač dominující pravou část zajišťuje pohodlné sledování.
 
-Klávesy:
+Přilnavý mini‑player a spodní ovladač zvyšují použitelnost při scrollu.
 
-E – export aktuálního frame do PNG.
+Responsivita: vytáhni playlist do zásuvky, zachovej full‑width video.
 
-H – toggle help overlay (Canvas2D nad WebGL).
-
-Kódová struktura
-
-javascript
-Zkopírovat
-Upravit
-QuantumInk.js
-├─ class QuantumInk
-│   ├─ constructor(parent, opts)         // init renderer, scene, camera
-│   ├─ _initFBO()                        // připraví renderTargets A/B
-│   ├─ _createShaders()                  // sim + render shadery
-│   ├─ _addPostprocessing()              // bloom & chromAb
-│   ├─ _addEvents()                      // mouse, mic, resize
-│   ├─ _update(dt)                       // gpuCompute + composer.render
-│   ├─ exportPNG()
-│   └─ destroy()
-└─ shaders/
-    ├─ sim.frag.glsl
-    ├─ render.vert.glsl
-    └─ chromAber.frag.glsl
-Bez závislostí navíc
-
-Pouze three@^0.165.0 + /examples/jsm/postprocessing/*.
-
-Nepoužívej externí builder; modul musí jít importovat přímo z ESM.
-
-Dokumentace v komentářích
-
-Krátké JSDoc nad public API.
-
-V kódu popiš ping‑pong mechaniku a curlNoise jen v několika větách.
-
-Kvalita & styl
-
-Lint‑friendly, export class QuantumInk { … } jako jediný export.
-
-Použij moderní JS (async/await jen kde nutné).
-
-Pojmenování proměnných srozumitelné, bez magie.
-
-Respektuj dělku řádků ~100 znaků; odděluj logické bloky.
-
-VÝSTUP: kompletní soubor QuantumInk.js + podadresář shaders/ s uvedenými GLSL soubory. Nevypisuj HTML wrapper ani bundler config. Všechno dodej v jednom bloku kódu tak, aby šlo okamžitě zkopírovat do projektu.
-
-makefile
-Zkopírovat
-Upravit
+Vyhledávání + filtry + URL‑state → archiv je rychle prohledatelný a sdílený.
