@@ -1,48 +1,79 @@
-
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Container, Stack, Card, CardActionArea, CardMedia, CardContent, Typography, Box, CircularProgress, TextField, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Box,
+  Typography,
+  TextField,
+  ToggleButtonGroup,
+  ToggleButton,
+  Card,
+  
+  CardMedia,
+  CardContent,
+  List,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  ListItemButton,
+  Button,
+  Stack,
+  Divider,
+  Chip,
+} from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import DownloadIcon from '@mui/icons-material/Download';
+import ShareIcon from '@mui/icons-material/Share';
+import { Link } from 'react-router-dom';
 
 interface VideoFile {
-  name: string;
   uid: string;
+  name: string;
   thumbnail: string;
   droneSize?: string;
+  date?: string;
+  location?: string;
+  camera?: string;
+  description?: string;
+  tags?: string[];
+  notes?: string;
 }
 
 const WORKER_BASE_URL = 'https://video-upload-worker.pellant-lukas.workers.dev';
+const DRAWER_WIDTH = 300;
 
-function VideoArchive() {
+const VideoArchive = () => {
   const [videos, setVideos] = useState<VideoFile[]>([]);
-  const [loadingVideos, setLoadingVideos] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [droneSizeFilter, setDroneSizeFilter] = useState<string | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<VideoFile | null>(null);
-  const [playerPos, setPlayerPos] = useState({ x: 100, y: 100 });
-  const [dragging, setDragging] = useState(false);
-  const dragStartRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
+  
+  const [search, setSearch] = useState('');
+  const [droneFilter, setDroneFilter] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [collapsed, setCollapsed] = useState(false);
+  const [selected, setSelected] = useState<VideoFile | null>(null);
 
   const fetchVideos = useCallback(async () => {
-    setLoadingVideos(true);
+    
     try {
-      const response = await fetch(`${WORKER_BASE_URL}/list-videos`);
-      const result = await response.json();
-
+      const res = await fetch(`${WORKER_BASE_URL}/list-videos`);
+      const result = await res.json();
       if (result.success) {
-        const fetchedVideos: VideoFile[] = result.videos.map((video: any) => ({
-          name: video.meta.name || `Video ${video.uid.substring(0, 8)}`,
-          uid: video.uid,
-          thumbnail: `https://videodelivery.net/${video.uid}/thumbnails/thumbnail.jpg?time=2s&width=600`,
-          droneSize: video.meta.droneSize,
+        const mapped: VideoFile[] = result.videos.map((v: any) => ({
+          uid: v.uid,
+          name: v.meta.name || `Video ${v.uid.substring(0, 8)}`,
+          thumbnail: `https://videodelivery.net/${v.uid}/thumbnails/thumbnail.jpg?time=2s&width=600`,
+          droneSize: v.meta.droneSize,
+          date: v.meta.date,
+          location: v.meta.location,
+          camera: v.meta.camera,
+          description: v.meta.description,
+          tags: v.meta.tags,
+          notes: v.meta.notes,
         }));
-        setVideos(fetchedVideos);
-      } else {
-        console.error('Chyba při načítání videí:', result.error);
+        setVideos(mapped);
       }
     } catch (error) {
-      console.error('Chyba sítě nebo serveru při načítání videí:', error);
-    } finally {
-      setLoadingVideos(false);
+      console.error("Failed to fetch videos:", error);
     }
   }, []);
 
@@ -50,177 +81,166 @@ function VideoArchive() {
     fetchVideos();
   }, [fetchVideos]);
 
-  useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      if (dragging && dragStartRef.current) {
-        const dx = e.clientX - dragStartRef.current.x;
-        const dy = e.clientY - dragStartRef.current.y;
-        setPlayerPos({
-          x: dragStartRef.current.left + dx,
-          y: dragStartRef.current.top + dy,
-        });
-      }
-    };
-    const onMouseUp = () => {
-      if (dragging) {
-        setDragging(false);
-        dragStartRef.current = null;
-      }
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    return () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-  }, [dragging]);
+  const filtered = videos
+    .filter((v) => v.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((v) => (droneFilter ? v.droneSize === droneFilter : true));
 
-  const handleDroneSizeFilterChange = (
-    _event: React.MouseEvent<HTMLElement>,
-    newFilter: string | null,
-  ) => {
-    setDroneSizeFilter(newFilter);
-  };
-
-  const filteredVideos = videos
-    .filter(video =>
-      video.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter(video =>
-        droneSizeFilter ? video.droneSize === droneSizeFilter : true
-    );
-
-return (
-  <>
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-        <TextField 
-          label="Hledat videa..."
-          variant="outlined"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: '50%' }}
-        />
-        <ToggleButtonGroup
-            value={droneSizeFilter}
-            exclusive
-            onChange={handleDroneSizeFilterChange}
-            aria-label="drone size filter"
-        >
-            <ToggleButton value="5inch" aria-label="5 inch">
-                5inch
-            </ToggleButton>
-            <ToggleButton value="2inch" aria-label="2 inch">
-                2inch
-            </ToggleButton>
-            <ToggleButton value="whoop" aria-label="whoop">
-                Whoop
-            </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-
-      {loadingVideos ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-          <CircularProgress />
-          <Typography variant="h6" ml={2}>Načítám videa...</Typography>
-        </Box>
-      ) : (
-        <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap" justifyContent="center">
-          {filteredVideos.length > 0 ? (
-            filteredVideos.map((video) => (
-              <Card
-                key={video.uid}
-                sx={{
-                  width: { xs: '100%', sm: '45%', md: '30%', lg: '22%' },
-                  maxWidth: '280px'
-                }}
-              >
-              <CardActionArea onClick={() => setSelectedVideo(video)}>
-                  <CardMedia
-                    component="img"
-                    image={video.thumbnail}
-                    alt={video.name}
-                    sx={{ height: 140, objectFit: 'cover' }}
-                  />
-                  <CardContent>
-                    <Typography gutterBottom variant="h6" component="div" noWrap>
-                      {video.name}
-                    </Typography>
-                    {video.droneSize && (
-                      <Typography variant="body2" color="text.secondary">
-                        {video.droneSize}
-                      </Typography>
-                    )}
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))
-          ) : (
-            <Box textAlign="center" py={10}>
-              <VideocamOffIcon sx={{ fontSize: 80, color: 'grey.700' }} />
-              <Typography variant="h5" color="text.secondary" mt={2}>
-                Nenašli jsme žádná videa odpovídající vašemu hledání.
-              </Typography>
-            </Box>
-          )}
-        </Stack>
-      )}
-    </Container>
-
-    {selectedVideo && (
+  return (
+    <Box sx={{ display: 'flex', height: '100%' }}>
       <Box
         sx={{
-          position: 'fixed',
-          top: playerPos.y,
-          left: playerPos.x,
-          width: '640px',
-          height: '360px',
-          backgroundColor: 'background.paper',
-          boxShadow: 24,
-          resize: 'both',
-          overflow: 'hidden',
-          zIndex: (theme) => theme.zIndex.modal,
+          width: collapsed ? 56 : DRAWER_WIDTH,
+          flexShrink: 0,
+          bgcolor: 'background.paper',
+          borderRight: 1,
+          borderColor: 'divider',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Box
-          onMouseDown={(e) => {
-            dragStartRef.current = {
-              x: e.clientX,
-              y: e.clientY,
-              left: playerPos.x,
-              top: playerPos.y,
-            };
-            setDragging(true);
-          }}
           sx={{
-            cursor: 'move',
-            backgroundColor: 'primary.main',
-            color: 'primary.contrastText',
-            px: 1,
-            py: 0.5,
-            userSelect: 'none',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            px: 1,
+            py: 1,
+            justifyContent: collapsed ? 'center' : 'space-between',
           }}
         >
-          <Typography variant="subtitle1">{selectedVideo.name}</Typography>
-          <Box component="span" sx={{ cursor: 'pointer', ml: 1 }} onClick={() => setSelectedVideo(null)}>
-            &#10005;
-          </Box>
+          {!collapsed && <Typography variant="h6">Archiv</Typography>}
+          <Button onClick={() => setCollapsed((c) => !c)} size="small">
+            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </Button>
         </Box>
-        <iframe
-          src={`https://iframe.videodelivery.net/${selectedVideo.uid}`}
-          style={{ width: '100%', height: 'calc(100% - 32px)', border: 'none' }}
-          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-          allowFullScreen
-        />
+        {!collapsed && (
+          <Box sx={{ p: 1 }}>
+            <TextField
+              fullWidth
+              label="Hledat videa..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              size="small"
+            />
+            <ToggleButtonGroup
+              value={droneFilter}
+              exclusive
+              onChange={(_, v) => setDroneFilter(v)}
+              sx={{ mt: 1 }}
+              size="small"
+              fullWidth
+            >
+              <ToggleButton value="5inch">5inch</ToggleButton>
+              <ToggleButton value="2inch">2inch</ToggleButton>
+              <ToggleButton value="whoop">Whoop</ToggleButton>
+            </ToggleButtonGroup>
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(_, v) => v && setViewMode(v)}
+              sx={{ mt: 1 }}
+              size="small"
+              fullWidth
+            >
+              <ToggleButton value="grid">
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="list">
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        )}
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
+          {viewMode === 'grid' && (
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              justifyContent="center"
+              sx={{ p: 1 }}
+            >
+              {filtered.map((v) => (
+                <Card
+                  key={v.uid}
+                  sx={{ width: 120, m: 0.5, cursor: 'pointer' }}
+                  onClick={() => setSelected(v)}
+                  raised={selected?.uid === v.uid}
+                >
+                  <CardMedia
+                    component="img"
+                    src={v.thumbnail}
+                    alt={v.name}
+                    sx={{ height: 68, objectFit: 'cover' }}
+                  />
+                  <CardContent sx={{ p: 1 }}>
+                    <Typography variant="caption" noWrap>
+                      {v.name}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Stack>
+          )}
+          {viewMode === 'list' && (
+            <List>
+              {filtered.map((v) => (
+                <React.Fragment key={v.uid}>
+                  <ListItemButton component="li" selected={selected?.uid === v.uid} alignItems="flex-start" onClick={() => setSelected(v)}>
+                    <ListItemAvatar>
+                      <Avatar variant="square" src={v.thumbnail} sx={{ width: 64, height: 36 }} />
+                    </ListItemAvatar>
+                    <ListItemText primary={v.name} secondary={v.date} />
+                  </ListItemButton>
+                  <Divider component="li" />
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </Box>
       </Box>
-    )}
-  </>
-);
-}
+      <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+        {!selected ? (
+          <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="h5" color="text.secondary">
+              Vyber video z playlistu
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Box sx={{ position: 'relative', width: '100%', pb: '56.25%' }}>
+              <iframe
+                src={`https://iframe.videodelivery.net/${selected.uid}`}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                allowFullScreen
+              />
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h5">{selected.name}</Typography>
+              {selected.description && <Typography variant="body2" sx={{ mt: 1 }}>{selected.description}</Typography>}
+              {selected.tags && selected.tags.length > 0 && (
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  {selected.tags.map((t) => (<Chip key={t} label={t} size="small" />))}
+                </Stack>
+              )}
+                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                <Button startIcon={<DownloadIcon />}>Stáhnout</Button>
+                <Button startIcon={<ShareIcon />}>Sdílet</Button>
+                <Button component={Link} to={`/projects?video=${selected.uid}`}>Zobrazit v projektech</Button>
+              </Stack>
+            </Box>
+            <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', boxShadow: 1, borderRadius: 1 }}>
+              <Typography variant="subtitle1">Další informace</Typography>
+              {selected.date && <Typography variant="body2">Datum: {selected.date}</Typography>}
+              {selected.location && <Typography variant="body2">Lokace: {selected.location}</Typography>}
+              {selected.camera && <Typography variant="body2">Dron/kamera: {selected.camera}</Typography>}
+              {selected.notes && <Typography variant="body2">Poznámky: {selected.notes}</Typography>}
+            </Box>
+          </>
+        )}
+      </Box>
+    </Box>
+  );
+};
 
 export default VideoArchive;
-
-
