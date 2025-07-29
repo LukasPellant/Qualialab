@@ -4,7 +4,7 @@ import { Mesh } from 'three';
 import useSandboxStore from '../stores/useSandboxStore';
 
 interface WorkerProps {
-  id: number;
+  id: string;
   speed?: number;
 }
 
