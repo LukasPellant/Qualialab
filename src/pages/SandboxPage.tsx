@@ -4,6 +4,7 @@ import { Worker, Building, Farm, Forest, Mine, Mountain } from '../objects/index
 import useSandboxStore, { type GameObject } from '../stores/useSandboxStore';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
+import HUD from '../components/HUD';
 import BuildMenu3D from '../components/BuildMenu3D';
 import BuildMenuUI from '../components/BuildMenuUI';
 import GameLoopUpdater from '../components/GameLoopUpdater';
@@ -43,6 +44,7 @@ export default function SandboxPage() {
 
   return (
     <Box sx={{ flex: 1, position: 'relative' }}>
+      <HUD />
       <Canvas 
         shadows 
         camera={{ position: [8, 8, 8], fov: 50 }}
@@ -54,20 +56,21 @@ export default function SandboxPage() {
         <GameLoopUpdater />
         <BuildMenu3D onBuild={handleBuild} selectedBuildingType={selectedBuildingType} />
 
-        {objects.map((obj: GameObject) => {
-          switch (obj.type) {
+        {objects.map((obj) => {
+          const { id, type, ...rest } = obj;
+          switch (type) {
             case 'worker':
-              return <Worker key={obj.id} id={obj.id} />;
+              return <Worker key={id} id={id} />;
             case 'building':
-              return <Building key={obj.id} {...obj} />;
+              return <Building key={id} {...rest} />;
             case 'farm':
-              return <Farm key={obj.id} {...obj} />;
+              return <Farm key={id} {...rest} />;
             case 'forest':
-              return <Forest key={obj.id} {...obj} />;
+              return <Forest key={id} {...rest} />;
             case 'mine':
-              return <Mine key={obj.id} {...obj} />;
+              return <Mine key={id} {...rest} />;
             case 'mountain':
-              return <Mountain key={obj.id} {...obj} />;
+              return <Mountain key={id} {...rest} />;
             default:
               return null;
           }

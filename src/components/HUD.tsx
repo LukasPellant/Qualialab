@@ -15,15 +15,17 @@ export default function HUD() {
   return (
     <Paper 
       elevation={3} 
-      square
       sx={{
+        position: 'absolute',
+        top: 16,
+        left: '50%',
+        transform: 'translateX(-50%)',
         bgcolor: 'rgba(0, 0, 0, 0.7)',
         color: 'white',
         p: 1,
-        width: '100%',
+        borderRadius: 2,
         backdropFilter: 'blur(5px)',
-        display: 'flex',
-        justifyContent: 'center'
+        zIndex: 10 // Ensure it's above the canvas
       }}
     >
       <Stack direction="row" spacing={3} alignItems="center">
