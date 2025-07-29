@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import useResourceStore from '../stores/useResourceStore';
-import { Card, CardContent } from '@mui/material';
+import { Paper, Typography, Stack, Box } from '@mui/material';
 
 export default function HUD() {
   const resources = useResourceStore();
@@ -13,15 +13,29 @@ export default function HUD() {
   }, []);
 
   return (
-    <Card className="fixed top-2 left-2 p-4 space-y-1 rounded-2xl shadow-xl bg-white/70 backdrop-blur">
-      <CardContent className="space-y-1 text-sm">
-        <div>Tick: {tick}</div>
-        {Object.entries(resources).map(([k, v]) => (
-          <div key={k}>
-            {k}: {v}
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+    <Paper 
+      elevation={3} 
+      square
+      sx={{
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        p: 1,
+        width: '100%',
+        backdropFilter: 'blur(5px)',
+        display: 'flex',
+        justifyContent: 'center'
+      }}
+    >
+      <Stack direction="row" spacing={3} alignItems="center">
+        <Typography variant="body2" sx={{ minWidth: '80px' }}>Tick: {tick}</Typography>
+        <Box sx={{ display: 'flex', gap: 3 }}>
+          {Object.entries(resources).map(([key, value]) => (
+            <Typography variant="body2" key={key}>
+              {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+            </Typography>
+          ))}
+        </Box>
+      </Stack>
+    </Paper>
   );
 }

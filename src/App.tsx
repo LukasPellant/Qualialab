@@ -1,5 +1,6 @@
 import './App.css';
 import MainLayout from './layouts/MainLayout';
+import SandboxLayout from './layouts/SandboxLayout'; // Import the new layout
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React, { Suspense } from 'react';
 
@@ -16,14 +17,19 @@ function App() {
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
+          {/* Routes with MainLayout (including footer) */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<LandingPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="equipment" element={<EquipmentPage />} />
             <Route path="projects" element={<Projects />} />
-            <Route path="sandbox" element={<SandboxPage />} />
             <Route path="video-archive" element={<VideoArchive />} />
             <Route path="video/:id" element={<VideoPlayerPage />} />
+          </Route>
+
+          {/* Route for Sandbox without the main layout */}
+          <Route path="/sandbox" element={<SandboxLayout />}>
+            <Route index element={<SandboxPage />} />
           </Route>
         </Routes>
       </Suspense>
