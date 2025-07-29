@@ -1,0 +1,31 @@
+chunk-D2NL6SDQ.js?v=58eca214:13598 Uncaught Error: R3F: Option is not part of the THREE namespace! Did you forget to extend? See: https://docs.pmnd.rs/react-three-fiber/api/objects#using-3rd-party-objects-declaratively
+    at validateInstance (chunk-D2NL6SDQ.js?v=58eca214:13598:46)
+    at createInstance (chunk-D2NL6SDQ.js?v=58eca214:13605:3)
+    at completeWork (chunk-D2NL6SDQ.js?v=58eca214:6664:33)
+    at runWithFiberInDEV (chunk-D2NL6SDQ.js?v=58eca214:918:18)
+    at completeUnitOfWork (chunk-D2NL6SDQ.js?v=58eca214:9502:22)
+    at performUnitOfWork (chunk-D2NL6SDQ.js?v=58eca214:9408:29)
+    at workLoopSync (chunk-D2NL6SDQ.js?v=58eca214:9255:43)
+    at renderRootSync (chunk-D2NL6SDQ.js?v=58eca214:9238:13)
+    at performWorkOnRoot (chunk-D2NL6SDQ.js?v=58eca214:8882:46)
+    at performWorkOnRootViaSchedulerTask (chunk-D2NL6SDQ.js?v=58eca214:2036:9)
+chunk-ABJ2RQAK.js?v=58eca214:6228 Uncaught Error: R3F: Option is not part of the THREE namespace! Did you forget to extend? See: https://docs.pmnd.rs/react-three-fiber/api/objects#using-3rd-party-objects-declaratively
+    at validateInstance (chunk-D2NL6SDQ.js?v=58eca214:13598:46)
+    at createInstance (chunk-D2NL6SDQ.js?v=58eca214:13605:3)
+    at completeWork (chunk-D2NL6SDQ.js?v=58eca214:6664:33)
+    at runWithFiberInDEV (chunk-D2NL6SDQ.js?v=58eca214:918:18)
+    at completeUnitOfWork (chunk-D2NL6SDQ.js?v=58eca214:9502:22)
+    at performUnitOfWork (chunk-D2NL6SDQ.js?v=58eca214:9408:29)
+    at workLoopSync (chunk-D2NL6SDQ.js?v=58eca214:9255:43)
+    at renderRootSync (chunk-D2NL6SDQ.js?v=58eca214:9238:13)
+    at performWorkOnRoot (chunk-D2NL6SDQ.js?v=58eca214:8882:46)
+    at performWorkOnRootViaSchedulerTask (chunk-D2NL6SDQ.js?v=58eca214:2036:9)
+SandboxPage.tsx:45 An error occurred in the <CanvasImpl> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+SandboxPage.tsx:29 Event listener for R key removed.
+chunk-G3XN5TUQ.js?v=58eca214:40318 THREE.WebGLRenderer: Context Lost.
+Warning: Don’t paste code into the DevTools Console that you don’t understand or haven’t reviewed yourself. This could allow attackers to steal your identity or take control of your computer. Please type ‘allow pasting’ below and press Enter to allow pasting.
+﻿
+

@@ -1,0 +1,199 @@
+## 16  Testovací fáze 3 – Umisťování budov, path‑finding a rozšířené úkoly
+
+**Cíl:** Rozšířit prototyp o **interaktivní stavbu nových budov** a **chytrý pohyb workerů**. Hráč klikne na mapu → vybere typ budovy → objekt se přidá do scény, zapíše do store a workeři k němu najdou cestu (A*). Přidáme také nové zdroje **stone** a **iron** skrze objekt *Mine*.
+
+### 16.1  Nové závislosti
+```
+npm i pathfinding leva
+```
+- **pathfinding** – robustní A* a JPS implementace pro grid.
+- **leva** – lehký GUI dropdown (volitelně místo shadcn/ui Popover) pro výběr budovy.
+
+### 16.2  Rozšířená struktura složek
+```
+/src
+  /systems
+    PathSystem.js       ← výpočet tras
+    TaskSystem.js       ← fronta úkolů + FSM workerů
+  /objects
+    Mine.jsx            ← těžba kamene/železa
+    Mountain.jsx        ← statický terén (blokuje cestu)
+  /components
+    BuildMenu.jsx       ← UI pro stavbu
+  /utils
+    grid.js             ← 2‑D grid & nav mesh helper
+```
+
+### 16.3  grid.js (zkráceně)
+```js
+import PF from 'pathfinding';
+
+// 2‑D pole 64×64, 0 = walkable, 1 = blok
+export const GRID_SIZE = 64;
+export const gridData = Array.from({ length: GRID_SIZE }, () =>
+  Array(GRID_SIZE).fill(0)
+);
+
+export function setBlocked(x, z, val = 1) {
+  if (gridData[z] && gridData[z][x] !== undefined) gridData[z][x] = val;
+}
+
+export const finder = new PF.AStarFinder({
+  diagonalMovement: PF.DiagonalMovement.Never,
+});
+
+export function findPath(from, to) {
+  const matrix = PF.Util.clone(gridData);
+  const grid = new PF.Grid(matrix);
+  return finder.findPath(from.x, from.z, to.x, to.z, grid);
+}
+```
+
+### 16.4  PathSystem.js
+```js
+import { findPath } from '@/utils/grid';
+import useSandboxStore from '@/stores/useSandboxStore';
+
+export function assignPath(entity, target) {
+  const path = findPath(
+    { x: Math.round(entity.position[0]), z: Math.round(entity.position[2]) },
+    { x: Math.round(target.position[0]), z: Math.round(target.position[2]) }
+  );
+  if (path.length > 0) entity.path = path;
+}
+
+export function runPathSystem(delta) {
+  const { objects } = useSandboxStore.getState();
+  objects
+    .filter((o) => o.type === 'worker' && o.path && o.path.length)
+    .forEach((w) => {
+      const [nextX, nextZ] = w.path[0];
+      const dir = [nextX - w.position[0], 0, nextZ - w.position[2]];
+      const len = Math.hypot(dir[0], dir[2]);
+      const speed = 0.02 * delta;
+      if (len < speed) {
+        w.position = [nextX, w.position[1], nextZ];
+        w.path.shift();
+      } else {
+        w.position[0] += (dir[0] / len) * speed;
+        w.position[2] += (dir[2] / len) * speed;
+      }
+    });
+}
+```
+
+### 16.5  TaskSystem.js (FSM)
+```js
+import { assignPath } from './PathSystem';
+import useSandboxStore from '@/stores/useSandboxStore';
+
+export function runTaskSystem() {
+  const { objects } = useSandboxStore.getState();
+
+  objects.forEach((o) => {
+    if (o.type !== 'worker') return;
+
+    switch (o.state ?? 'idle') {
+      case 'idle': {
+        // vyhledej nejbližší farmu, mine apod.
+        const target = objects.find((t) => ['farm', 'mine'].includes(t.type));
+        if (target) {
+          o.state = 'moving';
+          o.targetId = target.id;
+          assignPath(o, target);
+        }
+        break;
+      }
+      case 'moving': {
+        if (!o.path || o.path.length === 0) {
+          o.state = 'working';
+          o.timer = 0;
+        }
+        break;
+      }
+      case 'working': {
+        o.timer += 1;
+        if (o.timer > 5) {
+          // přidej suroviny
+          // ... (call ResourceStore)
+          o.state = 'idle';
+        }
+        break;
+      }
+    }
+  });
+}
+```
+
+### 16.6  BuildMenu.jsx
+```jsx
+import { useState } from 'react';
+import { useThree } from '@react-three/fiber';
+import useSandboxStore from '@/stores/useSandboxStore';
+import { setBlocked } from '@/utils/grid';
+import { nanoid } from 'nanoid';
+
+const BUILDINGS = ['farm', 'mine'];
+
+export default function BuildMenu() {
+  const { camera, scene } = useThree();
+  const { addObject } = useSandboxStore();
+  const [selected, setSelected] = useState('farm');
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    const [x, , z] = e.point.toArray().map(Math.round);
+    addObject({ id: nanoid(), type: selected, position: [x, 0.5, z] });
+    setBlocked(x, z);
+  };
+
+  return (
+    <>
+      <mesh
+        onClick={handleClick}
+        position={[0, 0, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        visible={false}
+      >
+        <planeGeometry args={[64, 64]} />
+      </mesh>
+      <div className="fixed top-2 right-2 bg-white p-2 rounded shadow">
+        <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+          {BUILDINGS.map((b) => (
+            <option key={b}>{b}</option>
+          ))}
+        </select>
+      </div>
+    </>
+  );
+}
+```
+
+### 16.7  Úpravy SandboxPage.jsx
+- Importuj a spusť `runPathSystem(delta)` uvnitř `Canvas` přes `useFrame`.
+- Přidej `<BuildMenu />` nad `<Canvas />`.
+
+### 16.8  Akceptační kritéria
+1. Hráč může kliknout na zem, vybrat typ **farm** nebo **mine** a budova se objeví.
+2. Nové budovy blokují cestu v gridu; workeři se jim vyhýbají.
+3. Worker se k budově dostane po A* trase (logicky obchází překážky).
+4. Po doběhnutí k budově začne *working* stav (5 ticků) a zvýší resource:
+   - farm → +2 food
+   - mine → +1 stone
+5. FPS > 40 a CPU tick delta < 16 ms na běžném desktopu.
+
+### 16.9  Milníky
+| Den | Úkol                          |
+| --- | ----------------------------- |
+| 1   | grid.js + PathSystem          |
+| 2   | BuildMenu + přidání objektů   |
+| 3   | TaskSystem (FSM)              |
+| 4   | Polishing & profiling         |
+
+---
+
+**Tipy pro Gemini CLI prompt**
+
+- „Každý nový soubor generuj do správné složky; nepřidávej žádný text mimo kód.“
+- „U grid.js uveď na začátku rozměry v komentáři, aby se daly snadno měnit.“
+- „Připoj Jest test ověřující, že funkce `findPath()` vrací trasu s minimem kroků.“
