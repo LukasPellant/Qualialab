@@ -1,14 +1,155 @@
-src/pages/SandboxPage.tsx:69:23 - error TS2322: Type '{ id: string; type: "worker" | "building" | "farm" | "forest" | "mine" | "mountain"; position: [number, number, number]; woodStock?: number | undefined; task?: { type: string; targetId: string; id: string; } | undefined; ... 4 more ...; key: string; }' is not assignable to type 'Mutable<Overwrite<Partial<Overwrite<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap>, MathProps<...> & ... 1 more ... & Partial<...>>>, Omit<...>>>'.
-  Types of property 'id' are incompatible.
-    Type 'string' is not assignable to type 'Readonly<number | undefined>'.
-
-69               return <Mine key={obj.id} {...obj} />;
-                         ~~~~
-
-src/pages/SandboxPage.tsx:71:23 - error TS2322: Type '{ id: string; type: "worker" | "building" | "farm" | "forest" | "mine" | "mountain"; position: [number, number, number]; woodStock?: number | undefined; task?: { type: string; targetId: string; id: string; } | undefined; ... 4 more ...; key: string; }' is not assignable to type 'Mutable<Overwrite<Partial<Overwrite<Mesh<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap>, MathProps<...> & ... 1 more ... & Partial<...>>>, Omit<...>>>'.
-  Types of property 'id' are incompatible.
-    Type 'string' is not assignable to type 'Readonly<number | undefined>'.
-
-71               return <Mountain key={obj.id} {...obj} />;
-                         ~~~~~~~~
-
+PathSystem.ts:13 Path not found 1
+grid.ts:48 
+(index)
+Value
+sx	1
+sy	0
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 2
+grid.ts:48 
+(index)
+Value
+sx	-1
+sy	0
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 3
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	1
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 4
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	-1
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 5
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	0
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 1
+grid.ts:48 
+(index)
+Value
+sx	1
+sy	0
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 2
+grid.ts:48 
+(index)
+Value
+sx	-1
+sy	0
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 3
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	1
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 4
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	-1
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 5
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	0
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 1
+grid.ts:48 
+(index)
+Value
+sx	1
+sy	0
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 2
+grid.ts:48 
+(index)
+Value
+sx	-1
+sy	0
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 3
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	1
+ex	-2
+ey	-1
+startWalkable	true
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 4
+grid.ts:48 
+(index)
+Value
+sx	0
+sy	-1
+ex	-2
+ey	-1
+startWalkable	false
+endWalkable	false
+Object
+PathSystem.ts:13 Path not found 5

@@ -5,15 +5,13 @@ import useSandboxStore, { type GameObject } from '../stores/useSandboxStore';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import HUD from '../components/HUD';
-import BuildMenu3D from '../components/BuildMenu3D';
-import BuildMenuUI from '../components/BuildMenuUI';
+import BuildMenu from '../components/BuildMenu';
+import BuildPlacement from '../components/BuildPlacement';
 import GameLoopUpdater from '../components/GameLoopUpdater';
 import { startGameLoop } from '../systems/TickSystem';
-import { nanoid } from 'nanoid';
 
 export default function SandboxPage() {
-  const { objects, reset, assignWorkerTask, addObject } = useSandboxStore();
-  const [selectedBuildingType, setSelectedBuildingType] = useState<GameObject['type']>('farm');
+  const { objects, reset, assignWorkerTask } = useSandboxStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -38,10 +36,6 @@ export default function SandboxPage() {
     assignWorkerTask(workerId, { type: 'chop', targetId: '8', id: `task-${workerId}-${Date.now()}` });
   };
 
-  const handleBuild = (type: GameObject['type'], position: [number, number, number]) => {
-    addObject({ id: nanoid(), type: type, position: position });
-  };
-
   return (
     <Box sx={{ flex: 1, position: 'relative' }}>
       <HUD />
@@ -50,11 +44,11 @@ export default function SandboxPage() {
         camera={{ position: [8, 8, 8], fov: 50 }}
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
+        <BuildPlacement />
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
 
         <GameLoopUpdater />
-        <BuildMenu3D onBuild={handleBuild} selectedBuildingType={selectedBuildingType} />
 
         {objects.map((obj) => {
           const { id, type, ...rest } = obj;
@@ -79,8 +73,7 @@ export default function SandboxPage() {
         <OrbitControls makeDefault />
         <Stats />
       </Canvas>
-
-      <BuildMenuUI onSelectBuilding={setSelectedBuildingType} />
+      <BuildMenu />
 
       <Paper 
         elevation={3} 

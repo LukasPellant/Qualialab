@@ -1,62 +1,56 @@
-Návrh struktury („wireframe v slovech“)
-Zóna	Umístění	Obsah & funkce	Poznámky k UX
-1. Horní lišta	fixně nahoře, 64 px	 - Logo
-- Hlavní sekce (Archiv, Projekty, Sandbox…) — text či ikony
-- Vpravo mini‑přehrávač v minimised stavu (pokud uživatel scrolluje dolů)	Lišta zůstává stále viditelná, aby byl rychlý přístup k sekcím i k aktuálně přehrávanému videu.
-2. Levý panel / playlist	 270–320 px šířka, plná výška	- Vyhledávání + filtr (kategorie: 5‑inch, 2‑inch, Whoop … případně štítky „2024“, „Race“…)
-- „Chytrý“ seznam videí: dlaždice nebo řádkový seznam s ikonou náhledu, názvem, délkou a datem
-- Možnost přepínat mezi Grid (4 sloupce miniaturních náhledů) a List (jeden sloupec s informacemi)	Panel je collapsible – klikem na ikonku „<“ se sbalí na úzký sloupec s ikonami.
-3. Hlavní přehrávač	pravá část, min 65 % šířky	- 16 : 9 player (zachová min. výšku 360 px, na velkých displejích max 720 px)
-- Pod přehrávačem: název, popis, štítky, tlačítka „Stáhnout“, „Sdílet“, „Zobrazit v projektech“	Při kliknutí na jiné video v playlistu se hladce nahradí (bez refresh celé stránky).
-4. Panel „další informace“	pod přehrávačem (desktop) / v kartě vedle přehrávače (tablet)	- Metadata: datum, lokace, použitý dron/kamera
-- Sekce Poznámky pro interní komentáře	Rozhodně oddělit vizuálně od popisu videa (jemný card se stínem).
-5. Dolní lišta (volitelné)	fixně dole, 48 px	- Zkrácený ovladač přehrávání při scrollu (Play/Pause, timeline) + název videa	Pomáhá u dlouhých seznamů — uživatel nemusí scrollovat nahoru k hlavnímu přehrávači.
+Co se pořád děje (aneb proč ex = ‑2, ey = ‑1)
+findPath() v grid.ts očekává souřadnice už v mřížce (0 – 63), ale voláš ho stále
+se světovými (X‑Z) souřadnicemi kolem nuly.
+Proto je cílové pole záporné → mimosíťové → „Path not found“.
 
-Tok uživatele
-Landing na „Archiv“
-– Fokus v search poli, přehrávač prázdný => vyzývá k výběru videa.
+Ověření (rychlý test v kódu)
+ts
+Copy
+Edit
+console.log('worker world', from.x, from.z, 'target world', to.x, to.z);
+Uvidíš stejné hodnoty, jaké pak po Math.floor končí jako ‑2, ‑1 …
 
-Výběr nebo vyhledání videa
-– Okamžitě se načte do přehrávače, playlist zvýrazní aktivní položku, scroll se ne(!)přenastaví (uživatel zůstane tam, kde je).
+Oprava: jasný převod world → grid
+Cílový stav: všechna volání findPath posílají grid souřadnice.
 
-Přehrávání a navigace
-– Scrolluje‑li dál dolů seznamem, hlavní přehrávač se „zmenší“ do pravého dolního rohu (picture‑in‑picture feel), aby video zůstalo viditelné.
+1️⃣ Vytvoř utilitu se správným offsetem
+text
+Copy
+Edit
+> Vytvoř @./src/utils/coords.ts:
+  import { GRID_SIZE } from '../utils/grid';
+  const CELL_SIZE = 1;              // pokud 1 world‑unit = 1 tile
+  const HALF = GRID_SIZE / 2;       // mapa je centrovaná v (0,0)
 
-Mobilní režim (< 768 px)
+  export const worldToGrid = (x:number, z:number) => [
+    Math.floor(x / CELL_SIZE + HALF),
+    Math.floor(z / CELL_SIZE + HALF)
+  ];
 
-Horní lišta kompaktní, menu jako hamburger.
+  export const gridToWorld = (gx:number, gy:number) => [
+    (gx - HALF + 0.5) * CELL_SIZE,
+    (gy - HALF + 0.5) * CELL_SIZE
+  ];
+(Pokud tvá mapa není centrovaná, změň HALF na libovolný ORIGIN_OFFSET_X/Y.)
 
-Playlist se schová pod tahací zásuvku zespodu.
+2️⃣ Použij převod v PathSystem.ts
+text
+Copy
+Edit
+> Uprav @./src/systems/PathSystem.ts:
+  - import { worldToGrid } from '../utils/coords';
+  - Před voláním findPath():
+      const [sx, sy] = worldToGrid(worker.x, worker.z);
+      const [ex, ey] = worldToGrid(target.x, target.z);
+      const path = findPath({ x: sx, z: sy }, { x: ex, z: ey });
+(Žádné další změny grid.ts nejsou nutné – ten už pracuje v grid souřadnicích.)
 
-Přehrávač full‑width nahoře, ovladače pod ním.
+3️⃣ Stejný převod při blokování dlaždic
+Kdekoliv voláš setBlocked(x, z) s world souřadnicemi (např. při stavbě budovy),
+přidej převod:
 
-Vizuální styl
-Barevná paleta: navázat na stávající fialovou, ale zvýšit kontrast textu (výchozí bílá #FFFFFF80 → plná #FFFFFF).
-
-Stíny & hloubka: lehký shadow na kartách/playlistu pro vrstvení.
-
-Animace: 150 ms ease‑in‑out pro hover na dlaždicích a sbalení panelu; fade‑in playeru při výběru videa.
-
-Ikonografie: jednotná (lucide nebo heroicons) pro akce typu stahování, sdílení, filtr.
-
-Mikrointerakce & detaily
-Klávesové zkratky:  / fokusuje vyhledávání, j/k skok na předchozí/další video, space pauza.
-
-Lazy‑loading náhledů: načti jen to, co je ve viewportu, a po 12 dlaždicích dotáhni další.
-
-Vybrat několik videí: shift‑click → hromadné akce („přidat do projektu“, „archivovat“).
-
-URL‑state: /archive?video=123 pro sdílení konkrétního záznamu, při refreshu se otevře rovnou.
-
-Toasts v pravém dolním rohu pro potvrzení akcí.
-
-Shrnutí
-Dvousloupcový layout se sbalitelným levým playlistem je klíčový pro rychlou navigaci a přehlednost.
-
-Hlavní přehrávač dominující pravou část zajišťuje pohodlné sledování.
-
-Přilnavý mini‑player a spodní ovladač zvyšují použitelnost při scrollu.
-
-Responsivita: vytáhni playlist do zásuvky, zachovej full‑width video.
-
-Vyhledávání + filtry + URL‑state → archiv je rychle prohledatelný a sdílený.
+ts
+Copy
+Edit
+const [gx, gy] = worldToGrid(building.x, building.z);
+setBlocked(gx, gy, 1);

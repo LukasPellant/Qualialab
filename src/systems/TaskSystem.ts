@@ -1,19 +1,26 @@
 import { assignPath } from './PathSystem';
-import useSandboxStore, { type GameObject } from '../stores/useSandboxStore';
+import useSandboxStore from '@/stores/useSandboxStore';
+import useResourceStore from '@/stores/useResourceStore';
+
+let last = 0;
 
 export function runTaskSystem() {
+  const now = performance.now();
+  if (now - last < 100) return;   // 10 Hz
+  last = now;
+
   const { objects } = useSandboxStore.getState();
 
-  objects.forEach((o: GameObject) => {
+  objects.forEach((o: any) => {
     if (o.type !== 'worker') return;
 
     switch (o.state ?? 'idle') {
       case 'idle': {
-        // vyhledej nejbližší farmu, mine apod.
-        const target = objects.find((t) => ['farm', 'mine'].includes(t.type));
+        // Find the nearest farm, mine, etc.
+        const target = objects.find((t: any) => ['farm', 'mine'].includes(t.type));
         if (target) {
           o.state = 'moving';
-          o.targetId = target.id as string;
+          o.targetId = target.id;
           assignPath(o, target);
         }
         break;
@@ -26,10 +33,16 @@ export function runTaskSystem() {
         break;
       }
       case 'working': {
-        o.timer = (o.timer ?? 0) + 1;
+        o.timer += 1;
         if (o.timer > 5) {
-          // přidej suroviny
-          // ... (call ResourceStore)
+          const target = objects.find((t: any) => t.id === o.targetId);
+          if (target) {
+            if (target.type === 'farm') {
+              useResourceStore.getState().addResources({ food: 2 });
+            } else if (target.type === 'mine') {
+              useResourceStore.getState().addResources({ stone: 1 });
+            }
+          }
           o.state = 'idle';
         }
         break;

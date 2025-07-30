@@ -1,10 +1,11 @@
-import type { ThreeElements } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 
-export function Mine(props: ThreeElements['mesh']) {
+export default function Mine(props: any) {
+  // Replace with your own model
+  const { nodes, materials } = useGLTF('/path/to/your/mine.gltf');
   return (
-    <mesh {...props} castShadow>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="gray" />
-    </mesh>
+    <group {...props} dispose={null}>
+      <mesh geometry={(nodes as any).Mine.geometry} material={materials.Stone} />
+    </group>
   );
 }

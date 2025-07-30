@@ -34,6 +34,7 @@ const getInitialObjects = (): GameObject[] => [
 
 const useSandboxStore = create<SandboxState>((set) => ({
   objects: getInitialObjects(),
+  selectedBuildingType: 'farm',
   reset: () => {
     set({ objects: getInitialObjects() });
     useResourceStore.getState().reset();
@@ -48,6 +49,7 @@ const useSandboxStore = create<SandboxState>((set) => ({
   addObject: (obj) => set((state) => ({
     objects: [...state.objects, obj],
   })),
+  setSelectedBuildingType: (type) => set({ selectedBuildingType: type }),
 }));
 
 export default useSandboxStore;

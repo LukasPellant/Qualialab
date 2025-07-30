@@ -1,10 +1,11 @@
-import type { ThreeElements } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 
-export function Mountain(props: ThreeElements['mesh']) {
+export default function Mountain(props: any) {
+  // Replace with your own model
+  const { nodes, materials } = useGLTF('/path/to/your/mountain.gltf');
   return (
-    <mesh {...props} castShadow>
-      <coneGeometry args={[1, 2, 6]} />
-      <meshStandardMaterial color="brown" />
-    </mesh>
+    <group {...props} dispose={null}>
+      <mesh geometry={(nodes as any).Mountain.geometry} material={materials.Rock} />
+    </group>
   );
 }

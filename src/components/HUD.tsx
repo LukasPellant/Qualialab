@@ -3,7 +3,7 @@ import useResourceStore from '../stores/useResourceStore';
 import { Paper, Typography, Stack, Box } from '@mui/material';
 
 export default function HUD() {
-  const resources = useResourceStore();
+  const { wood, stone, food, gold } = useResourceStore();
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -31,11 +31,10 @@ export default function HUD() {
       <Stack direction="row" spacing={3} alignItems="center">
         <Typography variant="body2" sx={{ minWidth: '80px' }}>Tick: {tick}</Typography>
         <Box sx={{ display: 'flex', gap: 3 }}>
-          {Object.entries(resources).map(([key, value]) => (
-            <Typography variant="body2" key={key}>
-              {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-            </Typography>
-          ))}
+          <Typography variant="body2">Wood: {wood}</Typography>
+          <Typography variant="body2">Stone: {stone}</Typography>
+          <Typography variant="body2">Food: {food}</Typography>
+          <Typography variant="body2">Gold: {gold}</Typography>
         </Box>
       </Stack>
     </Paper>
