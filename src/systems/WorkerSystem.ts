@@ -1,23 +1,21 @@
 import useSandboxStore from '../stores/useSandboxStore';
 import useResourceStore from '../stores/useResourceStore';
-import { nanoid } from 'nanoid';
 
 export function runWorkerSystem() {
-  const { objects, setObjects } = useSandboxStore.getState();
-  const res = useResourceStore.getState();
+  const { objects } = useSandboxStore.getState();
+  const { wood, addWood } = useResourceStore.getState();
 
-  // Příklad: pokud je dřeva < 20, pošli workera do lesa
-  if (res.wood < 20) {
-    const forest = objects.find((o) => o.type === 'forest' && (o.woodStock ?? 0) > 0);
-    const worker = objects.find((o) => o.type === 'worker' && !o.task);
-    if (forest && worker && forest.woodStock) {
-      // přiřaď úkol
-      worker.task = { type: 'chop', targetId: forest.id, id: nanoid() };
-      forest.woodStock -= 1;
-      useResourceStore.setState({ wood: res.wood + 1 });
+  objects.forEach((worker) => {
+    if (worker.type === 'worker' && worker.state === 'working' && worker.timer === 5) {
+      const target = objects.find((o) => o.id === worker.targetId);
+      if (target) {
+        switch (target.type) {
+          case 'forest':
+            addWood(1);
+            break;
+          // Add other resource types here
+        }
+      }
     }
-  }
-
-  // Dodatečná logika pohybu / dokončení úkolu by šla sem
-  setObjects([...objects]);
+  });
 }

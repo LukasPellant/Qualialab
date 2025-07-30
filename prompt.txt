@@ -1,56 +1,80 @@
-Co se pořád děje (aneb proč ex = ‑2, ey = ‑1)
-findPath() v grid.ts očekává souřadnice už v mřížce (0 – 63), ale voláš ho stále
-se světovými (X‑Z) souřadnicemi kolem nuly.
-Proto je cílové pole záporné → mimosíťové → „Path not found“.
+PF.Grid předpokládá, že startovní i cílové souřadnice leží uvnitř pole 0 … GRID_SIZE - 1.
+Při vytváření cesty ale rovnou používáte zaokrouhlené světové souřadnice entit / cílů – a ty mohou být záporné nebo > 63. Jakmile tedy do knihovny pošlete třeba (-1, 12) nebo 64, pokusí se sáhnout na index, který v mřížce neexistuje a vnitřní kód následně narazí na undefined['-2'], což vyústí v hlášku
 
-Ověření (rychlý test v kódu)
+javascript
+Copy
+Edit
+TypeError: Cannot read properties of undefined (reading '-2')   :contentReference[oaicite:5]{index=5}
+Místo, kde se to děje
 ts
 Copy
 Edit
-console.log('worker world', from.x, from.z, 'target world', to.x, to.z);
-Uvidíš stejné hodnoty, jaké pak po Math.floor končí jako ‑2, ‑1 …
-
-Oprava: jasný převod world → grid
-Cílový stav: všechna volání findPath posílají grid souřadnice.
-
-1️⃣ Vytvoř utilitu se správným offsetem
-text
+const tempGrid = new PF.Grid(gridData);
+return finder.findPath(from.x, from.z, to.x, to.z, tempGrid);  // ř. 25  :contentReference[oaicite:6]{index=6}
+Rychlá oprava – ohraničení souřadnic v findPath
+ts
 Copy
 Edit
-> Vytvoř @./src/utils/coords.ts:
-  import { GRID_SIZE } from '../utils/grid';
-  const CELL_SIZE = 1;              // pokud 1 world‑unit = 1 tile
-  const HALF = GRID_SIZE / 2;       // mapa je centrovaná v (0,0)
+// grid.ts
+export function findPath(
+  from: { x: number; z: number },
+  to:   { x: number; z: number }
+) {
+  const clamp = (v: number) => Math.max(0, Math.min(GRID_SIZE - 1, v));
 
-  export const worldToGrid = (x:number, z:number) => [
-    Math.floor(x / CELL_SIZE + HALF),
-    Math.floor(z / CELL_SIZE + HALF)
-  ];
+  const sx = clamp(from.x);
+  const sz = clamp(from.z);
+  const tx = clamp(to.x);
+  const tz = clamp(to.z);
 
-  export const gridToWorld = (gx:number, gy:number) => [
-    (gx - HALF + 0.5) * CELL_SIZE,
-    (gy - HALF + 0.5) * CELL_SIZE
-  ];
-(Pokud tvá mapa není centrovaná, změň HALF na libovolný ORIGIN_OFFSET_X/Y.)
+  // Pokud je start == cíl, nic nehledej
+  if (sx === tx && sz === tz) return [];
 
-2️⃣ Použij převod v PathSystem.ts
-text
-Copy
-Edit
-> Uprav @./src/systems/PathSystem.ts:
-  - import { worldToGrid } from '../utils/coords';
-  - Před voláním findPath():
-      const [sx, sy] = worldToGrid(worker.x, worker.z);
-      const [ex, ey] = worldToGrid(target.x, target.z);
-      const path = findPath({ x: sx, z: sy }, { x: ex, z: ey });
-(Žádné další změny grid.ts nejsou nutné – ten už pracuje v grid souřadnicích.)
-
-3️⃣ Stejný převod při blokování dlaždic
-Kdekoliv voláš setBlocked(x, z) s world souřadnicemi (např. při stavbě budovy),
-přidej převod:
+  const tempGrid = new PF.Grid(gridData);
+  return finder.findPath(sx, sz, tx, tz, tempGrid);
+}
+* Stačí pár řádků a knihovna nikdy nedostane neplatný index.
+* Případné mimo‑rozsah hodnoty i tak zalogujete, takže rychle odhalíte špatně postavené objekty:
 
 ts
 Copy
 Edit
-const [gx, gy] = worldToGrid(building.x, building.z);
-setBlocked(gx, gy, 1);
+if (from.x !== sx || from.z !== sz || to.x !== tx || to.z !== tz) {
+  console.warn('Souřadnice mimo mřížku (clamp)', { from, to, sx, sz, tx, tz });
+}
+Lepší řešení – převod svět → mřížka na jednom místě
+Pokud váš herní svět začíná uprostřed scény, je elegantnější mít drobnou konverzní funkci a stejný offset použít i při pohybu, např.:
+
+ts
+Copy
+Edit
+const OFFSET = GRID_SIZE / 2;
+
+export const worldToGrid = (v: number) => Math.round(v + OFFSET);
+export const gridToWorld = (v: number) => v - OFFSET;
+Pak volání v assignPath vypadá takto:
+
+ts
+Copy
+Edit
+const path = findPath(
+  { x: worldToGrid(entity.position[0]), z: worldToGrid(entity.position[2]) },
+  { x: worldToGrid(target.position[0]),  z: worldToGrid(target.position[2]) }
+);  :contentReference[oaicite:7]{index=7}
+a v runPathSystem převádíte uzly zpět:
+
+ts
+Copy
+Edit
+const [nextX, nextZ] = w.path[0];
+const worldNext = [gridToWorld(nextX), w.position[1], gridToWorld(nextZ)];
+// … pokračuje výpočet dir/len …  :contentReference[oaicite:8]{index=8}
+Tak máte jistotu, že do pathfindru vždy proudí kladné indexy, ale ve scéně může hráč pracovat s libovolnými (i zápornými) světovými souřadnicemi.
+
+Drobná doporučení navíc
+Místo	Tip
+runTaskSystem	Pokud je objects.find(…) drahé, zvažte předpočítání seznamu cílů a využití filter+Math.random() pro rovnoměrnější rozdělení práce. 
+runPathSystem	const speed = 0.02 * delta; používá frame‑delta, takže v 60 FPS se postava pohne ~0.0003 mřížky. Zkuste místo toho fixní hodnotu (např. speed = 2 uzly / s) a násobit delta už při přičítání.
+Typy	Definujte si type Vec2 = [number, number]; type Worker = { … path?: Vec2[] } – ušetří vám to kontrolu w.path && w.path.length.
+
+Po přidání clampingů (nebo správného offsetu) přestane chyba Cannot read properties of undefined (reading '-2') vyskakovat a pathfinding bude spolehlivě fungovat. Dej vědět, jestli se objeví další potíže!

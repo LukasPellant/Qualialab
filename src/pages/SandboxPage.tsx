@@ -11,7 +11,7 @@ import GameLoopUpdater from '../components/GameLoopUpdater';
 import { startGameLoop } from '../systems/TickSystem';
 
 export default function SandboxPage() {
-  const { objects, reset, assignWorkerTask } = useSandboxStore();
+  const { objects, reset, assignIdleWorkersToBuildings } = useSandboxStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -32,10 +32,6 @@ export default function SandboxPage() {
 
   const workers = objects.filter((obj): obj is GameObject => obj.type === 'worker');
 
-  const handleAssignChopTask = (workerId: string) => {
-    assignWorkerTask(workerId, { type: 'chop', targetId: '8', id: `task-${workerId}-${Date.now()}` });
-  };
-
   return (
     <Box sx={{ flex: 1, position: 'relative' }}>
       <HUD />
@@ -44,7 +40,6 @@ export default function SandboxPage() {
         camera={{ position: [8, 8, 8], fov: 50 }}
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
-        <BuildPlacement />
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
 
@@ -72,6 +67,11 @@ export default function SandboxPage() {
 
         <OrbitControls makeDefault />
         <Stats />
+        <BuildPlacement />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+          <planeGeometry args={[64, 64]} />
+          <meshStandardMaterial color="#8f8f8f" />
+        </mesh>
       </Canvas>
       <BuildMenu />
 
@@ -105,8 +105,8 @@ export default function SandboxPage() {
                   <TableCell sx={{ color: 'white', borderBottom: 'none' }}>{worker.id.substring(0, 5)}...</TableCell>
                   <TableCell sx={{ color: 'white', borderBottom: 'none' }}>{worker.task ? `${worker.task.type}` : 'Idle'}</TableCell>
                   <TableCell sx={{ color: 'white', borderBottom: 'none' }}>
-                    <Button variant="outlined" size="small" onClick={() => handleAssignChopTask(worker.id)} sx={{ color: 'white', borderColor: 'rgba(255, 255, 255, 0.5)' }}>
-                      Chop
+                    <Button variant="outlined" size="small" onClick={() => assignIdleWorkersToBuildings()} sx={{ color: 'white', borderColor: 'rgba(255, 255, 255, 0.5)' }}>
+                      Assign Idle Workers
                     </Button>
                   </TableCell>
                 </TableRow>

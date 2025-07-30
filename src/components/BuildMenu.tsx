@@ -1,18 +1,55 @@
 import { useState } from 'react';
-import useSandboxStore from '@/stores/useSandboxStore';
+import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
+import { Paper, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { nanoid } from 'nanoid';
+import { setBlocked } from '@/utils/grid';
 
-const BUILDINGS = ['farm', 'mine'];
+const BUILDINGS: GameObject['type'][] = ['farm', 'mine'];
 
-export default function BuildMenu() {
+interface BuildMenuProps {
+  onBuild: (type: GameObject['type'], position: [number, number, number]) => void;
+}
+
+export default function BuildMenu({ onBuild }: BuildMenuProps) {
   const { selectedBuildingType, setSelectedBuildingType } = useSandboxStore();
 
+  const handleSelectBuilding = (type: GameObject['type']) => {
+    setSelectedBuildingType(type);
+  };
+
   return (
-    <div style={{ position: 'fixed', top: 8, right: 8, background: 'white', padding: 8, borderRadius: 4, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-      <select value={selectedBuildingType} onChange={(e) => setSelectedBuildingType(e.target.value as any)}>
-        {BUILDINGS.map((b) => (
-          <option key={b}>{b}</option>
-        ))}
-      </select>
-    </div>
+    <Paper 
+      elevation={3} 
+      sx={{
+        position: 'absolute',
+        bottom: 16,
+        left: 16,
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        p: 2,
+        borderRadius: 2,
+        backdropFilter: 'blur(5px)',
+        width: '200px'
+      }}
+    >
+      <Typography variant="h6" gutterBottom>Build Menu</Typography>
+      <FormControl fullWidth size="small">
+        <InputLabel id="building-select-label" sx={{ color: 'white' }}>Building</InputLabel>
+        <Select
+          labelId="building-select-label"
+          value={selectedBuildingType || ''}
+          label="Building"
+          onChange={(e) => {
+            const newType = e.target.value as GameObject['type'];
+            handleSelectBuilding(newType);
+          }}
+          sx={{ color: 'white', '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' } }}
+        >
+          {BUILDINGS.map((b) => (
+            <MenuItem key={b} value={b}>{b.charAt(0).toUpperCase() + b.slice(1)}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Paper>
   );
 }

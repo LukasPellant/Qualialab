@@ -14,6 +14,7 @@ export function startGameLoop() {
     tickId += 1;
     runResourceSystem();
     runWorkerSystem();
+    runWorkerSystem();
     window.dispatchEvent(new CustomEvent('tick', { detail: tickId }));
   }, TICK_MS);
 }
