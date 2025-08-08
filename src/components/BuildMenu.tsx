@@ -1,7 +1,7 @@
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import { Paper, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
-const BUILDINGS: GameObject['type'][] = ['farm', 'mine'];
+const BUILDINGS: GameObject['type'][] = ['farm', 'mine', 'house'];
 
 export default function BuildMenu() {
   const { selectedBuildingType, setSelectedBuildingType } = useSandboxStore();

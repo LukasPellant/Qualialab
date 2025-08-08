@@ -13,6 +13,8 @@ export default function BuildPlacement() {
         return 0.05; // thin slab
       case 'mine':
         return 0.6; // cylinder height ~1.2 → center at 0.6
+      case 'house':
+        return 0.5; // ~1m total center at 0.5
       case 'building':
         return 1; // generic 2m height box
       default:
@@ -40,6 +42,9 @@ export default function BuildPlacement() {
       base.workerCapacity = 2;
       base.assignedWorkers = [];
     }
+    if (selectedBuildingType === 'house') {
+      // House affects population cap via ResourceSystem on next tick
+    }
     addObject(base);
     setBlocked(worldToGrid(x), worldToGrid(z));
     setSelectedBuildingType(null);
@@ -64,6 +69,13 @@ export default function BuildPlacement() {
           <mesh position={position} castShadow>
             <boxGeometry args={[1.5, 0.8, 1.5]} />
             <meshStandardMaterial color="#8888ff" transparent opacity={0.4} />
+          </mesh>
+        );
+      case 'house':
+        return (
+          <mesh position={position} castShadow>
+            <boxGeometry args={[1.6, 1, 1.6]} />
+            <meshStandardMaterial color="#ffcc99" transparent opacity={0.4} />
           </mesh>
         );
       default:

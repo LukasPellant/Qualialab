@@ -25,10 +25,12 @@ export interface GameObject {
 export interface SandboxState {
   objects: GameObject[];
   selectedBuildingType: GameObject['type'] | null;
+  openTownHallId: string | null;
   reset: () => void;
   setObjects: (objects: GameObject[] | ((prev: GameObject[]) => GameObject[])) => void;
   addObject: (obj: GameObject) => void;
   setSelectedBuildingType: (type: GameObject['type'] | null) => void;
+  setOpenTownHallId: (id: string | null) => void;
 }
 
 const getInitialObjects = (): GameObject[] => [
@@ -46,6 +48,7 @@ const getInitialObjects = (): GameObject[] => [
 const useSandboxStore = create<SandboxState>((set) => ({
   objects: getInitialObjects(),
   selectedBuildingType: null,
+  openTownHallId: null,
   reset: () => {
     const objs = getInitialObjects();
     set({ objects: objs });
@@ -65,6 +68,7 @@ const useSandboxStore = create<SandboxState>((set) => ({
     })),
   addObject: (obj) => set((state) => ({ objects: [...state.objects, obj] })),
   setSelectedBuildingType: (type) => set({ selectedBuildingType: type }),
+  setOpenTownHallId: (id) => set({ openTownHallId: id }),
 }));
 
 export default useSandboxStore;

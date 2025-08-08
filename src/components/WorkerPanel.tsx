@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
-import { Paper, Typography, IconButton, Box, Stack, Divider } from '@mui/material';
+import { Paper, Typography, IconButton, Box, Stack, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
+import usePopulationStore from '@/stores/usePopulationStore';
 
 export default function WorkerPanel() {
-  const { objects, setObjects } = useSandboxStore();
+  const { objects, setObjects, openTownHallId, setOpenTownHallId } = useSandboxStore();
+  const { idle, cap, recruitTimer } = usePopulationStore();
 
   const { buildings, idleWorkers } = useMemo(() => {
     const buildings = objects.filter((o) => ['farm', 'mine', 'forest'].includes(o.type));
@@ -100,6 +102,16 @@ export default function WorkerPanel() {
           </Box>
         ))}
       </Stack>
+      <Dialog open={!!openTownHallId} onClose={() => setOpenTownHallId(null)}>
+        <DialogTitle>Town Hall</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">Population: {idle} / {cap}</Typography>
+          <Typography variant="body2">Recruit: {recruitTimer > 0 ? `${recruitTimer}s remaining` : 'Idle'}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenTownHallId(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
