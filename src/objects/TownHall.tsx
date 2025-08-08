@@ -1,6 +1,6 @@
 import { Text } from '@react-three/drei';
 
-export default function TownHall({ position = [0, 0, 0] as [number, number, number], id }: { position?: [number, number, number]; id?: string }) {
+export default function TownHall({ position = [0, 0, 0] as [number, number, number] }: { position?: [number, number, number] }) {
   return (
     <group position={position}>
       <mesh castShadow>
