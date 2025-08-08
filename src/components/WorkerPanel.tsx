@@ -4,10 +4,11 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import usePopulationStore from '@/stores/usePopulationStore';
+import { nanoid } from 'nanoid';
 
 export default function WorkerPanel() {
   const { objects, setObjects, openTownHallId, setOpenTownHallId } = useSandboxStore();
-  const { idle, cap, recruitTimer } = usePopulationStore();
+  const { idle, cap, recruitTimer, setIdle } = usePopulationStore();
 
   const { buildings, idleWorkers } = useMemo(() => {
     const buildings = objects.filter((o) => ['farm', 'mine', 'forest'].includes(o.type));
@@ -107,6 +108,31 @@ export default function WorkerPanel() {
         <DialogContent>
           <Typography variant="body2">Population: {idle} / {cap}</Typography>
           <Typography variant="body2">Recruit: {recruitTimer > 0 ? `${recruitTimer}s remaining` : 'Idle'}</Typography>
+          <Box sx={{ mt: 2 }}>
+            <Button
+              variant="contained"
+              disabled={idle <= 0}
+              onClick={() => {
+                if (idle <= 0) return;
+                // Spawn new worker near the open town hall
+                setObjects((prev: GameObject[]) => {
+                  const town = prev.find((o) => o.type === 'townhall' && o.id === openTownHallId) || prev.find((o) => o.type === 'townhall');
+                  const basePos = (town?.position || [0, 0.5, 0]) as [number, number, number];
+                  const spawn: GameObject = {
+                    id: nanoid(),
+                    type: 'worker',
+                    position: [basePos[0] + 0.6, 0.5, basePos[2] + 0.6],
+                    state: 'idle',
+                    assignedTargetId: null,
+                  } as unknown as GameObject;
+                  return [...prev, spawn];
+                });
+                setIdle(idle - 1);
+              }}
+            >
+              Create Worker (consume 1 idle)
+            </Button>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenTownHallId(null)}>Close</Button>
