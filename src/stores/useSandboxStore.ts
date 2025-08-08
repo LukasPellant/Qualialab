@@ -7,7 +7,7 @@ export type Task =
 
 export interface GameObject {
   id: string;
-  type: 'worker' | 'building' | 'farm' | 'forest' | 'mine' | 'mountain';
+  type: 'worker' | 'building' | 'farm' | 'forest' | 'mine' | 'mountain' | 'house' | 'townhall';
   position: [number, number, number];
   rotation?: [number, number, number];
   path?: [number, number][]; // grid coordinates [x,z]
@@ -32,19 +32,29 @@ export interface SandboxState {
 }
 
 const getInitialObjects = (): GameObject[] => [
-  { id: 'w1', type: 'worker', position: [0, 0.5, 0], state: 'idle', assignedTargetId: null },
-  { id: 'w2', type: 'worker', position: [1, 0.5, 0], state: 'idle', assignedTargetId: null },
-  { id: 'w3', type: 'worker', position: [-1, 0.5, 0], state: 'idle', assignedTargetId: null },
+  { id: 'town1', type: 'townhall', position: [0, 0.2, 2] },
+  { id: 'house1', type: 'house', position: [2.5, 0.2, 2.5] },
+  { id: 'house2', type: 'house', position: [-2.5, 0.2, 2.5] },
   { id: 'farm1', type: 'farm', position: [-2, 0.01, -1], workerCapacity: 2, assignedWorkers: [] },
   { id: 'forest1', type: 'forest', position: [0, 0.5, -4], stock: { wood: 300 }, workerCapacity: 3, assignedWorkers: [] },
+  { id: 'mount1', type: 'mountain', position: [4, 1.2, -5] },
+  // Keep a couple of workers for current loop
+  { id: 'w1', type: 'worker', position: [0.5, 0.5, 0.5], state: 'idle', assignedTargetId: null },
+  { id: 'w2', type: 'worker', position: [1.5, 0.5, 0.5], state: 'idle', assignedTargetId: null },
 ];
 
 const useSandboxStore = create<SandboxState>((set) => ({
   objects: getInitialObjects(),
   selectedBuildingType: null,
   reset: () => {
-    set({ objects: getInitialObjects() });
+    const objs = getInitialObjects();
+    set({ objects: objs });
     useResourceStore.getState().reset();
+    // Reset population based on buildings present
+    const cap = objs.reduce((acc, o) => acc + (o.type === 'townhall' ? 10 : o.type === 'house' ? 5 : 0), 0);
+    // Lazy import to avoid cycle
+    const { default: usePopulationStore } = require('./usePopulationStore');
+    usePopulationStore.getState().reset(5, cap || 20);
   },
   setObjects: (objectsOrFn) =>
     set((state) => ({

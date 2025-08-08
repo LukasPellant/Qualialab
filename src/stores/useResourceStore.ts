@@ -10,10 +10,10 @@ export interface ResourceState {
 }
 
 const useResourceStore = create<ResourceState>((set) => ({
-  wood: 10,
-  stone: 5,
-  food: 20,
-  gold: 0,
+  wood: 100,
+  stone: 50,
+  food: 120,
+  gold: 50,
   addResources: (resources) => set((state) => ({
     wood: state.wood + (resources.wood || 0),
     stone: state.stone + (resources.stone || 0),
@@ -21,10 +21,10 @@ const useResourceStore = create<ResourceState>((set) => ({
     gold: state.gold + (resources.gold || 0),
   })),
   reset: () => set({
-    wood: 10,
-    stone: 5,
-    food: 20,
-    gold: 0,
+    wood: 100,
+    stone: 50,
+    food: 120,
+    gold: 50,
   }),
 }));
 

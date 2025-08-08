@@ -14,13 +14,7 @@ export function Worker({ id }: WorkerProps) {
 
   const workerObject = objects.find((obj) => obj.id === id);
   const currentPosition: [number, number, number] = workerObject ? workerObject.position : [0, 0.5, 0];
-  const isVisible = workerObject
-    ? !(
-        workerObject.state === 'working' ||
-        workerObject.task?.type === 'gather' ||
-        workerObject.task?.type === 'build'
-      )
-    : true;
+  const isVisible = workerObject ? workerObject.state !== 'working' : true;
 
   // Reset offsetX when the worker's position from the store changes (i.e., store resets)
   useEffect(() => {

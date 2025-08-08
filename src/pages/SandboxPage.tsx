@@ -2,7 +2,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Box, Chip } from '@mui/material';
-import { Worker, Building, Farm, Forest, Mine, Mountain } from '../objects';
+import { Worker, Building, Farm, Forest, Mine, Mountain, House, TownHall } from '../objects';
 import useSandboxStore from '../stores/useSandboxStore';
 import HUD from '../components/HUD';
 import BuildMenu from '../components/BuildMenu';
@@ -49,6 +49,10 @@ export default function SandboxPage() {
                 return <Worker key={id} id={id} />;
               case 'building':
                 return <Building key={id} {...rest} />;
+              case 'house':
+                return <House key={id} id={id} {...rest} />;
+              case 'townhall':
+                return <TownHall key={id} id={id} {...rest} />;
               case 'farm':
                 return <Farm key={id} id={id} {...rest} />;
               case 'forest':
