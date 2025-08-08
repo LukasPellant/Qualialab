@@ -1,80 +1,73 @@
-PF.Grid předpokládá, že startovní i cílové souřadnice leží uvnitř pole 0 … GRID_SIZE - 1.
-Při vytváření cesty ale rovnou používáte zaokrouhlené světové souřadnice entit / cílů – a ty mohou být záporné nebo > 63. Jakmile tedy do knihovny pošlete třeba (-1, 12) nebo 64, pokusí se sáhnout na index, který v mřížce neexistuje a vnitřní kód následně narazí na undefined['-2'], což vyústí v hlášku
+1 Nový klíčový systém : Populace
+Prvek	Funkce	Výchozí hodnota
+Population Cap	Max. počet obyvatel – součet kapacit všech Houses + Town Hall.	10
+Idle Villagers	Volní lidé ve frontě; mohou být najati coby Worker nebo Soldier.	5 (start)
+Growth	Recruit v Town Hall: +1 Villager ⇒ −20 food, −5 gold, trvá 30 s.	—
 
-javascript
-Copy
-Edit
-TypeError: Cannot read properties of undefined (reading '-2')   :contentReference[oaicite:5]{index=5}
-Místo, kde se to děje
-ts
-Copy
-Edit
-const tempGrid = new PF.Grid(gridData);
-return finder.findPath(from.x, from.z, to.x, to.z, tempGrid);  // ř. 25  :contentReference[oaicite:6]{index=6}
-Rychlá oprava – ohraničení souřadnic v findPath
-ts
-Copy
-Edit
-// grid.ts
-export function findPath(
-  from: { x: number; z: number },
-  to:   { x: number; z: number }
-) {
-  const clamp = (v: number) => Math.max(0, Math.min(GRID_SIZE - 1, v));
+V kódu: usePopulationStore { idle, cap }; ResourceSystem při každém ticku kontroluje možné rekrutování/limity.
 
-  const sx = clamp(from.x);
-  const sz = clamp(from.z);
-  const tx = clamp(to.x);
-  const tz = clamp(to.z);
+2 Budovy – tabulka
+Tier	Budova	Účel	Build Cost (wood/stone/food/gold)	Build Time	Kapacita / Bonus
+0 (start)	Town Hall	centrální sklad, rekrut Villagers, respawn hráče	0 / 0 / 0 / 0	—	cap +10, storage 500 každá surovina
+1	House	zvyšuje populace cap	25 / 10 / 0 / 0	20 s	cap +5
+1	Farm (už máme)	+2 food/tick	20 / 0 / 0 / 0	25 s	—
+1	Lumber Camp	zkracuje „gather wood“ čas o 30 %	30 / 5 / 0 / 0	30 s	storage +200 wood
+2	Stone Quarry	+1 stone/tick (musí stát u Mountain)	20 / 20 / 0 / 0	40 s	—
+2	Watchtower	odhalí mlhu 12 ⨉ 12 polí, střílí na bandity (později)	40 / 15 / 0 / 5	45 s	HP 300
+3	Barracks	trénuje Soldiers z Villagers (+1 stone, +10 gold, 40 s)	60 / 40 / 20 / 20	60 s	fronta 2
 
-  // Pokud je start == cíl, nic nehledej
-  if (sx === tx && sz === tz) return [];
+(„Tier“ = minimální celkový počet postavených budov; slouží jako jednoduchý tech-gating.)
 
-  const tempGrid = new PF.Grid(gridData);
-  return finder.findPath(sx, sz, tx, tz, tempGrid);
-}
-* Stačí pár řádků a knihovna nikdy nedostane neplatný index.
-* Případné mimo‑rozsah hodnoty i tak zalogujete, takže rychle odhalíte špatně postavené objekty:
+3 Začátek hry
+Mapa spawnuje Town Hall, 2 House, 1 Farm, 1 Forest, 1 Mountain.
 
-ts
-Copy
-Edit
-if (from.x !== sx || from.z !== sz || to.x !== tx || to.z !== tz) {
-  console.warn('Souřadnice mimo mřížku (clamp)', { from, to, sx, sz, tx, tz });
-}
-Lepší řešení – převod svět → mřížka na jednom místě
-Pokud váš herní svět začíná uprostřed scény, je elegantnější mít drobnou konverzní funkci a stejný offset použít i při pohybu, např.:
+Resources start: wood = 100, stone = 50, food = 120, gold = 50.
 
-ts
-Copy
-Edit
-const OFFSET = GRID_SIZE / 2;
+Idle Villagers = 5, cap = 20 → 5 slotů volných.
 
-export const worldToGrid = (v: number) => Math.round(v + OFFSET);
-export const gridToWorld = (v: number) => v - OFFSET;
-Pak volání v assignPath vypadá takto:
+4 Toky práce
+Recruit → Worker
 
-ts
-Copy
-Edit
-const path = findPath(
-  { x: worldToGrid(entity.position[0]), z: worldToGrid(entity.position[2]) },
-  { x: worldToGrid(target.position[0]),  z: worldToGrid(target.position[2]) }
-);  :contentReference[oaicite:7]{index=7}
-a v runPathSystem převádíte uzly zpět:
+Hráč klikne na idle villager v UI (nebo hotkey W).
 
-ts
-Copy
-Edit
-const [nextX, nextZ] = w.path[0];
-const worldNext = [gridToWorld(nextX), w.position[1], gridToWorld(nextZ)];
-// … pokračuje výpočet dir/len …  :contentReference[oaicite:8]{index=8}
-Tak máte jistotu, že do pathfindru vždy proudí kladné indexy, ale ve scéně může hráč pracovat s libovolnými (i zápornými) světovými souřadnicemi.
+Worker vytvořen (odebere 1 idle).
 
-Drobná doporučení navíc
-Místo	Tip
-runTaskSystem	Pokud je objects.find(…) drahé, zvažte předpočítání seznamu cílů a využití filter+Math.random() pro rovnoměrnější rozdělení práce. 
-runPathSystem	const speed = 0.02 * delta; používá frame‑delta, takže v 60 FPS se postava pohne ~0.0003 mřížky. Zkuste místo toho fixní hodnotu (např. speed = 2 uzly / s) a násobit delta už při přičítání.
-Typy	Definujte si type Vec2 = [number, number]; type Worker = { … path?: Vec2[] } – ušetří vám to kontrolu w.path && w.path.length.
+Gather (dřevo / kámen)
 
-Po přidání clampingů (nebo správného offsetu) přestane chyba Cannot read properties of undefined (reading '-2') vyskakovat a pathfinding bude spolehlivě fungovat. Dej vědět, jestli se objeví další potíže!
+Pokud u suroviny postaven specializovaný camp/quarry → zrychlený workDuration = base * 0.7.
+
+Build request
+
+BuildMenu předá Task(type:"build", blueprint:"House") do TaskSystem.
+
+Deduct resources okamžitě; pokud chybí → toast „Not enough …“.
+
+Soldier training (až Tier 3)
+
+Barracks queue slot → −1 idle villager, −1 stone, −10 gold, −20 food.
+
+Po 40 s nový soldier entita.
+
+5 Úpravy subsystémů
+Systém	Změna
+usePopulationStore	{ idle: number, cap: number } + selector canRecruit.
+ResourceSystem	Funkce autoRecruit() – pokud food ≥ 40 && gold ≥ 10 && idle < cap, zahájí recruit tick job.
+TaskSystem	Nový task type "train" (Barracks).
+UI	HUDBar: přidat idle/cap ikonku 👥 5 / 20.
+WorkerTable: sloupec „Unassign“ (vrací worker do idle).
+PathSystem	House, Barracks, Tower přidávají blok do gridu.
+Save/Load	Snapshot nových polí (population, building.progress).
+
+6 Balancing směrem k playable loop
+Dřevěná ekonomika: 1 Worker + Forest → +1 wood / 4 s ⇒ Farm & House ufinancovatelné za ~3 min.
+
+Recruit náklad (20 food + 5 gold) vynutí postavit Farm(y) než se spamují Workerzy.
+
+Tier 2 vyžaduje 6 budov celkem → hráč musí rozšířit základnu a řešit space/path.
+
+7 Future hooks
+Population Happiness (spotřeba food/wood per tick; nízké = rebelie).
+
+Shared pool pro Soldiers – jedním klikem lze „conscription“; Worker ⟷ Soldier beze ztrát.
+
+Event-driven growth: při stavbě každé House šance 10 % že přibude “free villager” (rodí se děti).

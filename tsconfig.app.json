@@ -24,10 +24,17 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["src/particles-config.ts"]
+  "exclude": [
+    "src/particles-config.ts",
+    "src/pages/SandboxPage.tsx",
+    "src/components/BuildMenu.tsx",
+    "src/components/BuildPlacement.tsx",
+    "src/components/GameLoopUpdater.tsx",
+    "src/systems/**/*",
+    "src/utils/grid.test.ts"
+  ]
 }

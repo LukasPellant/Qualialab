@@ -1,16 +1,9 @@
-import { useState } from 'react';
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import { Paper, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { nanoid } from 'nanoid';
-import { setBlocked } from '@/utils/grid';
 
 const BUILDINGS: GameObject['type'][] = ['farm', 'mine'];
 
-interface BuildMenuProps {
-  onBuild: (type: GameObject['type'], position: [number, number, number]) => void;
-}
-
-export default function BuildMenu({ onBuild }: BuildMenuProps) {
+export default function BuildMenu() {
   const { selectedBuildingType, setSelectedBuildingType } = useSandboxStore();
 
   const handleSelectBuilding = (type: GameObject['type']) => {

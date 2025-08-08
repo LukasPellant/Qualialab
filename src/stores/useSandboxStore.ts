@@ -1,38 +1,42 @@
 import { create } from 'zustand';
 import useResourceStore from './useResourceStore';
 
+export type Task =
+  | { type: 'gather'; resource: 'wood' | 'stone'; targetId: string }
+  | { type: 'build'; blueprint: 'farm' | 'mine'; targetPos: [number, number, number] };
+
 export interface GameObject {
   id: string;
   type: 'worker' | 'building' | 'farm' | 'forest' | 'mine' | 'mountain';
   position: [number, number, number];
-  woodStock?: number;
-  task?: { type: string; targetId: string; id: string };
-  path?: number[][];
-  state?: 'idle' | 'moving' | 'working';
+  rotation?: [number, number, number];
+  path?: [number, number][]; // grid coordinates [x,z]
+  state?: 'idle' | 'moving' | 'working' | 'building';
+  task?: Task | null;
+  stock?: { wood?: number; stone?: number };
+  progress?: number; // 0..1 for builds
   targetId?: string;
   timer?: number;
-  assignedWorkerId?: string | null;
+  workerCapacity?: number;
+  assignedWorkers?: string[];
+  assignedTargetId?: string | null; // only for workers
 }
 
 export interface SandboxState {
   objects: GameObject[];
   selectedBuildingType: GameObject['type'] | null;
   reset: () => void;
-  setObjects: (objects: GameObject[]) => void;
-  assignWorkerTask: (workerId: string, task: { type: string; targetId: string; id: string }) => void;
+  setObjects: (objects: GameObject[] | ((prev: GameObject[]) => GameObject[])) => void;
   addObject: (obj: GameObject) => void;
   setSelectedBuildingType: (type: GameObject['type'] | null) => void;
 }
 
 const getInitialObjects = (): GameObject[] => [
-  { id: '1', type: 'worker', position: [0, 0.5, 0], state: 'idle' },
-  { id: '2', type: 'worker', position: [1, 0.5, 0], state: 'idle' },
-  { id: '3', type: 'worker', position: [-1, 0.5, 0], state: 'idle' },
-  { id: '4', type: 'worker', position: [0, 0.5, 1], state: 'idle' },
-  { id: '5', type: 'worker', position: [0, 0.5, -1], state: 'idle' },
-  { id: '6', type: 'building', position: [2, 0.5, 0] },
-  { id: '7', type: 'farm', position: [-2, 0.01, -1] },
-  { id: '8', type: 'forest', position: [0, 0.5, -4] },
+  { id: 'w1', type: 'worker', position: [0, 0.5, 0], state: 'idle', assignedTargetId: null },
+  { id: 'w2', type: 'worker', position: [1, 0.5, 0], state: 'idle', assignedTargetId: null },
+  { id: 'w3', type: 'worker', position: [-1, 0.5, 0], state: 'idle', assignedTargetId: null },
+  { id: 'farm1', type: 'farm', position: [-2, 0.01, -1], workerCapacity: 2, assignedWorkers: [] },
+  { id: 'forest1', type: 'forest', position: [0, 0.5, -4], stock: { wood: 300 }, workerCapacity: 3, assignedWorkers: [] },
 ];
 
 const useSandboxStore = create<SandboxState>((set) => ({
@@ -41,35 +45,16 @@ const useSandboxStore = create<SandboxState>((set) => ({
   reset: () => {
     set({ objects: getInitialObjects() });
     useResourceStore.getState().reset();
-    console.log('Store reset function called. New objects created.');
   },
-  setObjects: (objects) => set({ objects }),
-  assignWorkerTask: (workerId, task) => set((state) => ({
-    objects: state.objects.map((obj) =>
-      obj.id === workerId ? { ...obj, task } : obj
-    ),
-  })),
-  addObject: (obj) => set((state) => ({
-    objects: [...state.objects, obj],
-  })),
+  setObjects: (objectsOrFn) =>
+    set((state) => ({
+      objects:
+        typeof objectsOrFn === 'function'
+          ? (objectsOrFn as (prev: GameObject[]) => GameObject[])(state.objects)
+          : objectsOrFn,
+    })),
+  addObject: (obj) => set((state) => ({ objects: [...state.objects, obj] })),
   setSelectedBuildingType: (type) => set({ selectedBuildingType: type }),
-  assignIdleWorkersToBuildings: () => set((state) => {
-    const newObjects = [...state.objects];
-    const idleWorkers = newObjects.filter(o => o.type === 'worker' && o.state === 'idle');
-    const availableBuildings = newObjects.filter(o => ['farm', 'mine', 'forest'].includes(o.type) && !o.assignedWorkerId);
-
-    for (const worker of idleWorkers) {
-      const building = availableBuildings.shift(); // Get the next available building
-      if (building) {
-        worker.state = 'moving';
-        worker.targetId = building.id;
-        building.assignedWorkerId = worker.id;
-      } else {
-        break; // No more available buildings
-      }
-    }
-    return { objects: newObjects };
-  }),
 }));
 
 export default useSandboxStore;

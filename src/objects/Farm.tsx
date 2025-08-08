@@ -1,8 +1,19 @@
-export function Farm({ position = [0, 0, 0] as [number, number, number] }) {
+import useSandboxStore from '@/stores/useSandboxStore';
+import { Text } from '@react-three/drei';
+
+export function Farm({ position = [0, 0, 0] as [number, number, number], id }: { position?: [number, number, number]; id?: string }) {
+  const object = useSandboxStore((s) => (id ? s.objects.find((o) => o.id === id) : undefined));
+  const assigned = object?.assignedWorkers?.length ?? 0;
+  const capacity = object?.workerCapacity ?? 0;
   return (
-    <mesh position={position} castShadow>
-      <boxGeometry args={[2, 0.1, 2]} />
-      <meshStandardMaterial color="#A0522D" />
-    </mesh>
+    <group position={position}>
+      <mesh castShadow>
+        <boxGeometry args={[2, 0.1, 2]} />
+        <meshStandardMaterial color="#A0522D" />
+      </mesh>
+      <Text position={[0, 1.6, 0]} fontSize={0.3} color="white" anchorX="center" anchorY="middle">
+        {assigned}/{capacity}
+      </Text>
+    </group>
   );
 }

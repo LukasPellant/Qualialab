@@ -1,7 +1,0 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
-import { Link, Outlet } from 'react-router-dom';
-const MainLayout = () => {
-    return (_jsxs(Box, { sx: { display: 'flex', flexDirection: 'column', minHeight: '100vh' }, children: [_jsx(AppBar, { position: "sticky", sx: { bgcolor: 'rgba(80, 0, 80, 0.9)', backdropFilter: 'blur(10px)' }, children: _jsxs(Toolbar, { children: [_jsx(Typography, { variant: "h6", component: Link, to: "/", sx: { flexGrow: 1, color: 'inherit', textDecoration: 'none', fontWeight: 700 }, children: "QualiaLab" }),         _jsx(Button, { color: "inherit", component: Link, to: "/video-archive", children: "Video Archiv" }), _jsx(Button, { color: "inherit", component: Link, to: "/projects", children: "Projekty" }), _jsx(Button, { color: "inherit", component: Link, to: "/sandbox", children: "Sandbox" }), _jsx(Button, { color: "inherit", component: Link, to: "/about", children: "O projektu" }), _jsx(Button, { color: "inherit", component: Link, to: "/equipment", children: "Vybaven\u00ED" })] }) }), _jsx(Container, { component: "main", sx: { flexGrow: 1, py: 4, backgroundColor: 'transparent' }, children: _jsx(Outlet, {}) }), _jsx(Box, { component: "footer", sx: { bgcolor: 'background.paper', p: 2, textAlign: 'center' }, children: _jsxs(Typography, { variant: "body2", color: "text.secondary", children: ["\u00A9 ", new Date().getFullYear(), " QualiaLab"] }) })] }));
-};
-export default MainLayout;

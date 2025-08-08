@@ -1,12 +1,493 @@
-pathfinding.js?v=5fb909f7:348 Uncaught TypeError: Cannot read properties of undefined (reading '-2')
-    at findPath (grid.ts:25:17)
-    at assignPath (PathSystem.ts:8:16)
-    at TaskSystem.ts:17:11
-    at Array.forEach (<anonymous>)
-    at runTaskSystem (TaskSystem.ts:7:11)
-    at Object.current (GameLoopUpdater.tsx:8:5)
-findPath	@	grid.ts:25
-assignPath	@	PathSystem.ts:8
-(anonymous)	@	TaskSystem.ts:17
-runTaskSystem	@	TaskSystem.ts:7
-(anonymous)	@	GameLoopUpdater.tsx:8
+BuildPlacement.tsx:24 <planeGeometry /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+overrideMethod @ hook.js:608
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8149
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<planeGeometry>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:24
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:24 The tag <planeGeometry> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+overrideMethod @ hook.js:608
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8155
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<planeGeometry>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:24
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:25 <meshBasicMaterial /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+overrideMethod @ hook.js:608
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8149
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<meshBasicMaterial>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:25
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:25 The tag <meshBasicMaterial> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+overrideMethod @ hook.js:608
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8155
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<meshBasicMaterial>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:25
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:25 Received `true` for a non-boolean attribute `transparent`.
+
+If you want to write it to the DOM, pass a string instead: transparent="true" or transparent={value.toString()}.
+overrideMethod @ hook.js:608
+validateProperty @ chunk-IO64F4HD.js?v=cb758359:2473
+warnUnknownProperties @ chunk-IO64F4HD.js?v=cb758359:2545
+validatePropertiesInDevelopment @ chunk-IO64F4HD.js?v=cb758359:12240
+setInitialProperties @ chunk-IO64F4HD.js?v=cb758359:12667
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8181
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<meshBasicMaterial>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:25
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:18 The tag <mesh> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+overrideMethod @ hook.js:608
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8155
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<mesh>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:18
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+BuildPlacement.tsx:18 Received `false` for a non-boolean attribute `visible`.
+
+If you want to write it to the DOM, pass a string instead: visible="false" or visible={value.toString()}.
+
+If you used to conditionally omit it with visible={condition && value}, pass visible={condition ? value : undefined} instead.
+overrideMethod @ hook.js:608
+validateProperty @ chunk-IO64F4HD.js?v=cb758359:2480
+warnUnknownProperties @ chunk-IO64F4HD.js?v=cb758359:2545
+validatePropertiesInDevelopment @ chunk-IO64F4HD.js?v=cb758359:12240
+setInitialProperties @ chunk-IO64F4HD.js?v=cb758359:12667
+completeWork @ chunk-IO64F4HD.js?v=cb758359:8181
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+completeUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10976
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10882
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<mesh>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+BuildPlacement @ BuildPlacement.tsx:18
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<BuildPlacement>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+SandboxPage @ SandboxPage.tsx:69
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7613
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopConcurrentByScheduler @ chunk-IO64F4HD.js?v=cb758359:10864
+renderRootConcurrent @ chunk-IO64F4HD.js?v=cb758359:10844
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<...>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+App @ App.tsx:32
+react_stack_bottom_frame @ chunk-IO64F4HD.js?v=cb758359:17424
+renderWithHooksAgain @ chunk-IO64F4HD.js?v=cb758359:4281
+renderWithHooks @ chunk-IO64F4HD.js?v=cb758359:4217
+updateFunctionComponent @ chunk-IO64F4HD.js?v=cb758359:6619
+beginWork @ chunk-IO64F4HD.js?v=cb758359:7654
+runWithFiberInDEV @ chunk-IO64F4HD.js?v=cb758359:1485
+performUnitOfWork @ chunk-IO64F4HD.js?v=cb758359:10868
+workLoopSync @ chunk-IO64F4HD.js?v=cb758359:10728
+renderRootSync @ chunk-IO64F4HD.js?v=cb758359:10711
+performWorkOnRoot @ chunk-IO64F4HD.js?v=cb758359:10330
+performWorkOnRootViaSchedulerTask @ chunk-IO64F4HD.js?v=cb758359:11623
+performWorkUntilDeadline @ chunk-IO64F4HD.js?v=cb758359:36
+<App>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=cb758359:250
+(anonymous) @ main.tsx:12
+@react-three_drei.js?v=cb758359:20448 [Violation] Added non-passive event listener to a scroll-blocking 'wheel' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+OrbitControls.connect @ @react-three_drei.js?v=cb758359:20448
+(anonymous) @ @react-three_drei.js?v=cb758359:86111
+react-stack-bottom-frame @ chunk-YYOOVJ24.js?v=cb758359:10537
+runWithFiberInDEV @ chunk-YYOOVJ24.js?v=cb758359:918
+commitHookEffectListMount @ chunk-YYOOVJ24.js?v=cb758359:6958
+commitHookPassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:7016
+reconnectPassiveEffects @ chunk-YYOOVJ24.js?v=cb758359:8417
+recursivelyTraverseReconnectPassiveEffects @ chunk-YYOOVJ24.js?v=cb758359:8396
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8363
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8385
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8296
+recursivelyTraversePassiveMountEffects @ chunk-YYOOVJ24.js?v=cb758359:8283
+commitPassiveMountOnFiber @ chunk-YYOOVJ24.js?v=cb758359:8306
+flushPassiveEffects @ chunk-YYOOVJ24.js?v=cb758359:9682
+(anonymous) @ chunk-YYOOVJ24.js?v=cb758359:9605
+performWorkUntilDeadline @ chunk-YYOOVJ24.js?v=cb758359:238
+@react-three_drei.js?v=cb758359:20448 [Violation] Added non-passive event listener to a scroll-blocking 'wheel' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952

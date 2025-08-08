@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -6,26 +6,28 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Card,
-  
   CardMedia,
   CardContent,
-  List,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
-  ListItemButton,
   Button,
   Stack,
-  Divider,
   Chip,
+  Breadcrumbs,
+  Link as MLink,
+  InputAdornment,
+  Paper,
+  Divider,
+  List,
+  ListItemButton,
+  ListItemText,
+  ListItemIcon,
 } from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import HomeIcon from '@mui/icons-material/Home';
+import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
-import { Link } from 'react-router-dom';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface VideoFile {
   uid: string;
@@ -41,19 +43,15 @@ interface VideoFile {
 }
 
 const WORKER_BASE_URL = 'https://video-upload-worker.pellant-lukas.workers.dev';
-const DRAWER_WIDTH = 300;
 
 const VideoArchive = () => {
   const [videos, setVideos] = useState<VideoFile[]>([]);
-  
   const [search, setSearch] = useState('');
   const [droneFilter, setDroneFilter] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [collapsed, setCollapsed] = useState(false);
   const [selected, setSelected] = useState<VideoFile | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchVideos = useCallback(async () => {
-    
     try {
       const res = await fetch(`${WORKER_BASE_URL}/list-videos`);
       const result = await res.json();
@@ -73,171 +71,140 @@ const VideoArchive = () => {
         setVideos(mapped);
       }
     } catch (error) {
-      console.error("Failed to fetch videos:", error);
+      console.error('Failed to fetch videos:', error);
     }
   }, []);
 
+  useEffect(() => { fetchVideos(); }, [fetchVideos]);
+
   useEffect(() => {
-    fetchVideos();
-  }, [fetchVideos]);
+    const uid = searchParams.get('uid');
+    if (uid && videos.length > 0) {
+      const found = videos.find((v) => v.uid === uid) || null;
+      setSelected(found);
+    }
+  }, [searchParams, videos]);
 
   const filtered = videos
     .filter((v) => v.name.toLowerCase().includes(search.toLowerCase()))
     .filter((v) => (droneFilter ? v.droneSize === droneFilter : true));
 
+  const handleSelect = (v: VideoFile) => {
+    setSelected(v);
+    const next = new URLSearchParams(searchParams);
+    next.set('uid', v.uid);
+    setSearchParams(next);
+  };
+
   return (
-    <Box sx={{ display: 'flex', height: '100%' }}>
-      <Box
-        sx={{
-          width: collapsed ? 56 : DRAWER_WIDTH,
-          flexShrink: 0,
-          bgcolor: 'background.paper',
-          borderRight: 1,
-          borderColor: 'divider',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            px: 1,
-            py: 1,
-            justifyContent: collapsed ? 'center' : 'space-between',
-          }}
-        >
-          {!collapsed && <Typography variant="h6">Archiv</Typography>}
-          <Button onClick={() => setCollapsed((c) => !c)} size="small">
-            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </Button>
-        </Box>
-        {!collapsed && (
-          <Box sx={{ p: 1 }}>
-            <TextField
-              fullWidth
-              label="Hledat videa..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              size="small"
-            />
-            <ToggleButtonGroup
-              value={droneFilter}
-              exclusive
-              onChange={(_, v) => setDroneFilter(v)}
-              sx={{ mt: 1 }}
-              size="small"
-              fullWidth
-            >
-              <ToggleButton value="5inch">5inch</ToggleButton>
-              <ToggleButton value="2inch">2inch</ToggleButton>
-              <ToggleButton value="whoop">Whoop</ToggleButton>
-            </ToggleButtonGroup>
-            <ToggleButtonGroup
-              value={viewMode}
-              exclusive
-              onChange={(_, v) => v && setViewMode(v)}
-              sx={{ mt: 1 }}
-              size="small"
-              fullWidth
-            >
-              <ToggleButton value="grid">
-                <ViewModuleIcon fontSize="small" />
-              </ToggleButton>
-              <ToggleButton value="list">
-                <ViewListIcon fontSize="small" />
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-        )}
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
-          {viewMode === 'grid' && (
-            <Stack
-              direction="row"
-              spacing={1}
-              flexWrap="wrap"
-              justifyContent="center"
-              sx={{ p: 1 }}
-            >
-              {filtered.map((v) => (
-                <Card
-                  key={v.uid}
-                  sx={{ width: 120, m: 0.5, cursor: 'pointer' }}
-                  onClick={() => setSelected(v)}
-                  raised={selected?.uid === v.uid}
-                >
-                  <CardMedia
-                    component="img"
-                    src={v.thumbnail}
-                    alt={v.name}
-                    sx={{ height: 68, objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ p: 1 }}>
-                    <Typography variant="caption" noWrap>
-                      {v.name}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))}
-            </Stack>
-          )}
-          {viewMode === 'list' && (
-            <List>
-              {filtered.map((v) => (
-                <React.Fragment key={v.uid}>
-                  <ListItemButton component="li" selected={selected?.uid === v.uid} alignItems="flex-start" onClick={() => setSelected(v)}>
-                    <ListItemAvatar>
-                      <Avatar variant="square" src={v.thumbnail} sx={{ width: 64, height: 36 }} />
-                    </ListItemAvatar>
-                    <ListItemText primary={v.name} secondary={v.date} />
-                  </ListItemButton>
-                  <Divider component="li" />
-                </React.Fragment>
-              ))}
-            </List>
-          )}
-        </Box>
-      </Box>
-      <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
-        {!selected ? (
-          <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography variant="h5" color="text.secondary">
-              Vyber video z playlistu
-            </Typography>
-          </Box>
-        ) : (
-          <>
-            <Box sx={{ position: 'relative', width: '100%', pb: '56.25%' }}>
-              <iframe
-                src={`https://iframe.videodelivery.net/${selected.uid}`}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                allowFullScreen
-              />
-            </Box>
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h5">{selected.name}</Typography>
-              {selected.description && <Typography variant="body2" sx={{ mt: 1 }}>{selected.description}</Typography>}
-              {selected.tags && selected.tags.length > 0 && (
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  {selected.tags.map((t) => (<Chip key={t} label={t} size="small" />))}
+    <Box sx={{ px: { xs: 1.5, sm: 2, md: 3 }, py: 2 }}>
+      <Breadcrumbs sx={{ mb: 1 }}>
+        <MLink component={Link} to="/">Domů</MLink>
+        <Typography color="text.secondary">Archiv</Typography>
+        {selected && <Typography color="text.primary" noWrap maxWidth={280}>{selected.name}</Typography>}
+      </Breadcrumbs>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '260px 1fr' }, gap: 3, alignItems: 'start' }}>
+        {/* Left: Sidebar navigation & controls */}
+        <Paper elevation={6} sx={{ p: 2, position: 'sticky', top: 88, height: 'fit-content', bgcolor: 'background.paper' }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>Navigace</Typography>
+          <Divider sx={{ mb: 1 }} />
+          <List dense sx={{ mb: 1 }}>
+            <ListItemButton component={Link} to="/">
+              <ListItemIcon><HomeIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
+              <ListItemText primary="Domů" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/video-archive">
+              <ListItemIcon><VideoLibraryIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
+              <ListItemText primary="Archiv videí" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/about">
+              <ListItemIcon><InfoOutlinedIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
+              <ListItemText primary="O projektu" />
+            </ListItemButton>
+          </List>
+
+          <Typography variant="subtitle2" sx={{ mb: 1, mt: 1 }}>Hledat</Typography>
+          <TextField
+            fullWidth
+            placeholder="Hledat videa..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            size="small"
+            InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>) }}
+            sx={{ mb: 1 }}
+          />
+          <Typography variant="subtitle2" sx={{ mb: 1, mt: 1 }}>Filtr</Typography>
+          <ToggleButtonGroup value={droneFilter} exclusive onChange={(_, v) => setDroneFilter(v)} size="small" fullWidth>
+            {['5inch', '2inch', 'whoop'].map((label) => (
+              <ToggleButton key={label} value={label}>{label}</ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          <Chip label={`${filtered.length} videí`} size="small" color="primary" sx={{ mt: 1 }} />
+
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>Naposledy přidané</Typography>
+          <List dense>
+            {videos.slice(0, 6).map((v) => (
+              <ListItemButton key={v.uid} onClick={() => handleSelect(v)} selected={selected?.uid === v.uid}>
+                <ListItemText primaryTypographyProps={{ noWrap: true }} primary={v.name} secondary={v.droneSize} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Paper>
+
+        {/* Right: centered player + grid below */}
+        <Box>
+          {/* Centered player card */}
+          <Paper elevation={8} sx={{ p: 2, mb: 2 }}>
+            {!selected ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body1" color="text.secondary">Vyber video z panelu vlevo</Typography>
+              </Box>
+            ) : (
+              <>
+                <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 2 }}>
+                  <Box sx={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 2, overflow: 'hidden', boxShadow: 3 }}>
+                    <iframe
+                      src={`https://iframe.videodelivery.net/${selected.uid}`}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                      allowFullScreen
+                      title={selected.name}
+                    />
+                  </Box>
+                </Box>
+                <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'center' }} justifyContent="space-between" spacing={1} sx={{ maxWidth: 1200, mx: 'auto' }}>
+                  <Typography variant="h5" gutterBottom noWrap>{selected.name}</Typography>
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+                    <Button startIcon={<DownloadIcon />}>Stáhnout</Button>
+                    <Button startIcon={<ShareIcon />} onClick={() => navigator.clipboard.writeText(window.location.href)}>Sdílet</Button>
+                  </Stack>
                 </Stack>
-              )}
-                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-                <Button startIcon={<DownloadIcon />}>Stáhnout</Button>
-                <Button startIcon={<ShareIcon />}>Sdílet</Button>
-                <Button component={Link} to={`/projects?video=${selected.uid}`}>Zobrazit v projektech</Button>
-              </Stack>
-            </Box>
-            <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', boxShadow: 1, borderRadius: 1 }}>
-              <Typography variant="subtitle1">Další informace</Typography>
-              {selected.date && <Typography variant="body2">Datum: {selected.date}</Typography>}
-              {selected.location && <Typography variant="body2">Lokace: {selected.location}</Typography>}
-              {selected.camera && <Typography variant="body2">Dron/kamera: {selected.camera}</Typography>}
-              {selected.notes && <Typography variant="body2">Poznámky: {selected.notes}</Typography>}
-            </Box>
-          </>
-        )}
+              </>
+            )}
+          </Paper>
+
+          {/* Grid of results below */}
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' },
+            gap: 2,
+          }}>
+            {filtered.map((v) => (
+              <Card key={v.uid} onClick={() => handleSelect(v)} sx={{ cursor: 'pointer' }}>
+                <CardMedia component="img" src={v.thumbnail} alt={v.name} sx={{ height: 140, objectFit: 'cover' }} />
+                <CardContent sx={{ py: 1.5 }}>
+                  <Typography variant="subtitle2" noWrap>{v.name}</Typography>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
+                    {v.droneSize && <Chip label={v.droneSize} size="small" />}
+                    {v.date && <Chip label={v.date} size="small" variant="outlined" />}
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

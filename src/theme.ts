@@ -48,6 +48,28 @@ const theme = createTheme({
     borderRadius: 12, // More rounded corners
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        html: {
+          height: '100%',
+          background: 'linear-gradient(135deg, #0A0A2A 0%, #1A0A3A 100%)',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+        },
+        body: {
+          minHeight: '100%',
+          background: 'linear-gradient(135deg, #0A0A2A 0%, #1A0A3A 100%)',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          margin: 0,
+        },
+        '#root': {
+          minHeight: '100%',
+        },
+      },
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {

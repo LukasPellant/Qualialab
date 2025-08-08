@@ -1,7 +1,8 @@
 /// <reference types="node" />
 
-// Spouští všechny systémy každou sekundu
+// Ticking pipeline: Resource → Task → Worker → Event (Path runs per-frame)
 import { runResourceSystem } from './ResourceSystem';
+import { runTaskSystem } from './TaskSystem';
 import { runWorkerSystem } from './WorkerSystem';
 
 const TICK_MS = 1000;
@@ -13,7 +14,7 @@ export function startGameLoop() {
   interval = setInterval(() => {
     tickId += 1;
     runResourceSystem();
-    runWorkerSystem();
+    runTaskSystem();
     runWorkerSystem();
     window.dispatchEvent(new CustomEvent('tick', { detail: tickId }));
   }, TICK_MS);

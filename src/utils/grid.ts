@@ -1,7 +1,7 @@
 import PF from 'pathfinding';
 
 export const GRID_SIZE = 64;
-const gridData = Array.from({ length: GRID_SIZE }, () =>
+export const gridData = Array.from({ length: GRID_SIZE }, () =>
   Array(GRID_SIZE).fill(0)
 );
 
@@ -17,6 +17,11 @@ export function setBlocked(x: number, z: number, val = 1) {
   if (gridData[z] && gridData[z][x] !== undefined) {
     gridData[z][x] = val;
   }
+}
+
+export function isWalkable(x: number, z: number) {
+  if (z < 0 || z >= GRID_SIZE || x < 0 || x >= GRID_SIZE) return false;
+  return gridData[z][x] === 0;
 }
 
 const finder = new PF.AStarFinder({
@@ -41,4 +46,26 @@ export function findPath(from: { x: number; z: number }, to: { x: number; z: num
 
   const tempGrid = new PF.Grid(gridData);
   return finder.findPath(sx, sz, tx, tz, tempGrid);
+}
+
+// If the target is blocked, find nearest 4-neighborhood walkable cell within small radius
+export function findNearestWalkable(target: { x: number; z: number }, maxRadius = 3) {
+  const clamp = (v: number) => Math.max(0, Math.min(GRID_SIZE - 1, v));
+  const baseX = clamp(target.x);
+  const baseZ = clamp(target.z);
+  if (isWalkable(baseX, baseZ)) return { x: baseX, z: baseZ };
+  for (let r = 1; r <= maxRadius; r++) {
+    const candidates: Array<[number, number]> = [
+      [baseX + 1 * r, baseZ],
+      [baseX - 1 * r, baseZ],
+      [baseX, baseZ + 1 * r],
+      [baseX, baseZ - 1 * r],
+    ];
+    for (const [cx, cz] of candidates) {
+      const x = clamp(cx);
+      const z = clamp(cz);
+      if (isWalkable(x, z)) return { x, z };
+    }
+  }
+  return { x: baseX, z: baseZ };
 }
