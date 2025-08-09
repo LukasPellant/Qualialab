@@ -58,7 +58,7 @@ export function Worker({ id }: WorkerProps) {
   // Load FBX model and prepare it (materials + auto-grounding)
   const fbx = useFBX('/models/worker/Create_a_humanoid_WOR_0809081906_texture.fbx');
   const model = useMemo(() => (fbx ? SkeletonUtils.clone(fbx) : null), [fbx]);
-  const settledRef = useRef(false);
+  const [offsetY, setOffsetY] = useState(0);
 
   useLayoutEffect(() => {
     if (!model) return;
@@ -81,23 +81,11 @@ export function Worker({ id }: WorkerProps) {
         if (Array.isArray(mat)) mat.forEach(applyMat); else applyMat(mat);
       }
     });
-    // Auto-drop to ground so the lowest point sits at y=0
+    // Calculate ground offset after all setup
     model.updateMatrixWorld(true);
     const box = new Box3().setFromObject(model);
-    const min = box.min;
-    model.position.y = -min.y + 0.02;
+    setOffsetY(-box.min.y);
   }, [model]);
-
-  // One-frame settle to correct late bounds
-  useFrame(() => {
-    if (!model) return;
-    if (settledRef.current) return;
-    model.updateMatrixWorld(true);
-    const box = new Box3().setFromObject(model);
-    const min = box.min;
-    model.position.y = -min.y + 0.02;
-    settledRef.current = true;
-  });
 
   // Update target position when store changes
   useEffect(() => {
@@ -144,14 +132,16 @@ export function Worker({ id }: WorkerProps) {
 
   return (
     <group ref={ref} visible={true}>
-      {model ? (
-        <primitive object={model} />
-      ) : (
-        <mesh position={[0, 0.7, 0]} castShadow>
-          <capsuleGeometry args={[0.3, 0.8, 8, 16]} />
-          <meshStandardMaterial color="#cccccc" metalness={0} roughness={1} />
-        </mesh>
-      )}
+      <group position={[0, offsetY, 0]}>
+        {model ? (
+          <primitive object={model} />
+        ) : (
+          <mesh position={[0, 0.7, 0]} castShadow>
+            <capsuleGeometry args={[0.3, 0.8, 8, 16]} />
+            <meshStandardMaterial color="#cccccc" metalness={0} roughness={1} />
+          </mesh>
+        )}
+      </group>
     </group>
   );
 }

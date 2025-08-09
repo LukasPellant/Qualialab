@@ -1,8 +1,7 @@
 import useSandboxStore from '@/stores/useSandboxStore';
 import { Text, useFBX } from '@react-three/drei';
-import { useMemo, useLayoutEffect, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Box3, Mesh, Vector3 } from 'three';
+import { useMemo, useLayoutEffect, useState } from 'react';
+import { Box3, Mesh } from 'three';
 import { SkeletonUtils } from 'three-stdlib';
 
 export function Forest({ position = [0, 0, 0] as [number, number, number], id }: { position?: [number, number, number]; id?: string }) {
@@ -13,7 +12,8 @@ export function Forest({ position = [0, 0, 0] as [number, number, number], id }:
   const scale = stock > 0 ? 1 : 0.6; // shrink when depleted
   const fbx = useFBX('/models/forest/FOREST_GROVE_low_pol_0809101112_texture.fbx');
   const model = useMemo(() => (fbx ? SkeletonUtils.clone(fbx) : null), [fbx]);
-  const settledRef = useRef(false);
+  const [offsetY, setOffsetY] = useState(0);
+  
   useLayoutEffect(() => {
     if (!model) return;
     const SCALE = 0.03;
@@ -35,35 +35,24 @@ export function Forest({ position = [0, 0, 0] as [number, number, number], id }:
         if (Array.isArray(mat)) mat.forEach(applyMat); else applyMat(mat);
       }
     });
-    // Auto-drop to ground
+    // Calculate ground offset after all setup
     model.updateMatrixWorld(true);
     const box = new Box3().setFromObject(model);
-    const size = new Vector3();
-    const min = box.min;
-    box.getSize(size);
-    model.position.y = -min.y + 0.02;
+    setOffsetY(-box.min.y);
   }, [model]);
-
-  useFrame(() => {
-    if (!model) return;
-    if (settledRef.current) return;
-    model.updateMatrixWorld(true);
-    const box = new Box3().setFromObject(model);
-    const min = box.min;
-    model.position.y = -min.y + 0.02;
-    settledRef.current = true;
-  });
 
   return (
     <group position={[position[0], 0, position[2]]} scale={scale}>
-      {model ? (
-        <primitive object={model} />
-      ) : (
-        <mesh castShadow>
-          <coneGeometry args={[1, 2, 6]} />
-          <meshStandardMaterial color={stock > 0 ? '#228B22' : '#6b8e23'} />
-        </mesh>
-      )}
+      <group position={[0, offsetY, 0]}>
+        {model ? (
+          <primitive object={model} />
+        ) : (
+          <mesh castShadow>
+            <coneGeometry args={[1, 2, 6]} />
+            <meshStandardMaterial color={stock > 0 ? '#228B22' : '#6b8e23'} />
+          </mesh>
+        )}
+      </group>
       <Text position={[0, 1.6, 0]} fontSize={0.3} color="white" anchorX="center" anchorY="middle">
         {assigned}/{capacity}
       </Text>

@@ -1,8 +1,7 @@
 import useSandboxStore from '@/stores/useSandboxStore';
 import { Text, useFBX } from '@react-three/drei';
-import { useEffect, useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Box3, Mesh, Vector3 } from 'three';
+import { useMemo, useLayoutEffect, useState } from 'react';
+import { Box3, Mesh } from 'three';
 import { SkeletonUtils } from 'three-stdlib';
 
 export function Farm({ position = [0, 0, 0] as [number, number, number], id }: { position?: [number, number, number]; id?: string }) {
@@ -11,8 +10,9 @@ export function Farm({ position = [0, 0, 0] as [number, number, number], id }: {
   const capacity = object?.workerCapacity ?? 0;
   const fbx = useFBX('/models/farm/Design_a_simple_low_p_0809095827_texture.fbx');
   const model = useMemo(() => (fbx ? SkeletonUtils.clone(fbx) : null), [fbx]);
-  const settledRef = useRef(false);
-  useEffect(() => {
+  const [offsetY, setOffsetY] = useState(0);
+  
+  useLayoutEffect(() => {
     if (!model) return;
     const SCALE = 0.03;
     model.scale.set(SCALE, SCALE, SCALE);
@@ -34,37 +34,24 @@ export function Farm({ position = [0, 0, 0] as [number, number, number], id }: {
         if (Array.isArray(mat)) mat.forEach(applyMat); else applyMat(mat);
       }
     });
-    // Auto-drop to ground so the base sits on y=0
+    // Calculate ground offset after all setup
     model.updateMatrixWorld(true);
     const box = new Box3().setFromObject(model);
-    const size = new Vector3();
-    const min = box.min;
-    box.getSize(size);
-    // shift model up by -min.y so lowest point rests at y=0, plus a tiny epsilon
-    model.position.y = -min.y + 0.02;
+    setOffsetY(-box.min.y);
   }, [model]);
-
-  // Recompute for a few frames to fight late-loading submeshes/textures that can change bounds
-  useFrame(() => {
-    if (!model) return;
-    if (settledRef.current) return;
-    model.updateMatrixWorld(true);
-    const box = new Box3().setFromObject(model);
-    const min = box.min;
-    model.position.y = -min.y + 0.02;
-    settledRef.current = true;
-  });
 
   return (
     <group position={[position[0], 0, position[2]]}>
-      {model ? (
-        <primitive object={model} />
-      ) : (
-        <mesh castShadow>
-          <boxGeometry args={[2, 0.1, 2]} />
-          <meshStandardMaterial color="#A0522D" />
-        </mesh>
-      )}
+      <group position={[0, offsetY, 0]}>
+        {model ? (
+          <primitive object={model} />
+        ) : (
+          <mesh castShadow>
+            <boxGeometry args={[2, 0.1, 2]} />
+            <meshStandardMaterial color="#A0522D" />
+          </mesh>
+        )}
+      </group>
       <Text position={[0, 1.6, 0]} fontSize={0.3} color="white" anchorX="center" anchorY="middle">
         {assigned}/{capacity}
       </Text>
