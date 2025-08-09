@@ -54,7 +54,11 @@ export function runTaskSystem() {
       let end = { x: worldToGrid(targetPos[0]), z: worldToGrid(targetPos[2]) };
       end = findNearestWalkable(end);
       const path = findPath(start, end);
-      clone.path = path as any;
+      // remove starting node if equal to current tile
+      const first = path && path[0];
+      const cur = [start.x, start.z];
+      const normalized = path && first && first[0] === cur[0] && first[1] === cur[1] ? path.slice(1) : path;
+      clone.path = normalized as any;
       if (!path || path.length === 0) {
         // Already at destination tile → start working immediately
         clone.state = 'working';
@@ -83,7 +87,10 @@ export function runTaskSystem() {
       const path = findPath(start, end);
       if (!updated) updated = objects.slice();
       const clone = { ...worker } as GameObject;
-      clone.path = path as any;
+      const first = path && path[0];
+      const cur = [start.x, start.z];
+      const normalized = path && first && first[0] === cur[0] && first[1] === cur[1] ? path.slice(1) : path;
+      clone.path = normalized as any;
       if (!path || path.length === 0) {
         clone.state = 'working';
         clone.timer = 0;
