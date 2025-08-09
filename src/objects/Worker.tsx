@@ -1,6 +1,8 @@
 import { useFrame } from '@react-three/fiber';
-import { useRef, useEffect, useState } from 'react';
-import { Group, Vector3 } from 'three';
+import { useRef, useEffect, useState, useMemo, useLayoutEffect } from 'react';
+import { Group, Vector3, Box3, Mesh } from 'three';
+import { useFBX } from '@react-three/drei';
+import { SkeletonUtils } from 'three-stdlib';
 import useSandboxStore from '../stores/useSandboxStore';
 import { gridToWorld } from '@/utils/grid';
 
@@ -53,6 +55,50 @@ export function Worker({ id }: WorkerProps) {
   const targetPositionRef = useRef<Vector3>(new Vector3(0, 0, 0));
   const lastRotationRef = useRef(0);
 
+  // Load FBX model and prepare it (materials + auto-grounding)
+  const fbx = useFBX('/models/worker/Create_a_humanoid_WOR_0809081906_texture.fbx');
+  const model = useMemo(() => (fbx ? SkeletonUtils.clone(fbx) : null), [fbx]);
+  const settledRef = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!model) return;
+    const SCALE = 0.01;
+    model.scale.set(SCALE, SCALE, SCALE);
+    model.traverse((child) => {
+      const maybeMesh = child as unknown as Mesh;
+      if ((maybeMesh as any).isMesh) {
+        maybeMesh.castShadow = true;
+        maybeMesh.receiveShadow = true;
+        const mat: any = (maybeMesh as any).material;
+        const applyMat = (m: any) => {
+          if (!m) return;
+          if ('metalness' in m) m.metalness = 0;
+          if ('roughness' in m) m.roughness = 0.9;
+          if ('envMapIntensity' in m) m.envMapIntensity = 0;
+          if ('specular' in m) m.specular?.set?.(0x000000);
+          m.needsUpdate = true;
+        };
+        if (Array.isArray(mat)) mat.forEach(applyMat); else applyMat(mat);
+      }
+    });
+    // Auto-drop to ground so the lowest point sits at y=0
+    model.updateMatrixWorld(true);
+    const box = new Box3().setFromObject(model);
+    const min = box.min;
+    model.position.y = -min.y + 0.02;
+  }, [model]);
+
+  // One-frame settle to correct late bounds
+  useFrame(() => {
+    if (!model) return;
+    if (settledRef.current) return;
+    model.updateMatrixWorld(true);
+    const box = new Box3().setFromObject(model);
+    const min = box.min;
+    model.position.y = -min.y + 0.02;
+    settledRef.current = true;
+  });
+
   // Update target position when store changes
   useEffect(() => {
     if (workerData) {
@@ -63,8 +109,6 @@ export function Worker({ id }: WorkerProps) {
       }
     }
   }, [workerData?.position?.[0], workerData?.position?.[2]]);
-
-  // No heavy FBX setup; placeholder only
 
   // Smooth interpolation to reduce state thrashing
   useFrame(() => {
@@ -100,10 +144,14 @@ export function Worker({ id }: WorkerProps) {
 
   return (
     <group ref={ref} visible={true}>
-      <mesh position={[0, 0.7, 0]} castShadow>
-        <capsuleGeometry args={[0.3, 0.8, 8, 16]} />
-        <meshStandardMaterial color="#cccccc" metalness={0} roughness={1} />
-      </mesh>
+      {model ? (
+        <primitive object={model} />
+      ) : (
+        <mesh position={[0, 0.7, 0]} castShadow>
+          <capsuleGeometry args={[0.3, 0.8, 8, 16]} />
+          <meshStandardMaterial color="#cccccc" metalness={0} roughness={1} />
+        </mesh>
+      )}
     </group>
   );
 }
