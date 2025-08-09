@@ -2,9 +2,12 @@ import { useState, useCallback } from 'react';
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import { nanoid } from 'nanoid';
 import { setBlocked, worldToGrid } from '@/utils/grid';
+import useResourceStore from '@/stores/useResourceStore';
+import { BUILD_COSTS } from '@/constants/buildings';
 
 export default function BuildPlacement() {
   const { selectedBuildingType, setSelectedBuildingType, addObject } = useSandboxStore();
+  const resources = useResourceStore();
   const [ghostPos, setGhostPos] = useState<[number, number] | null>(null); // [x, z]
 
   const getYOffset = useCallback((_type: string | null) => 0, []);
@@ -35,6 +38,20 @@ export default function BuildPlacement() {
     if (selectedBuildingType === 'house') {
       // House affects population cap via ResourceSystem on next tick
     }
+    // Check and deduct resources
+    const cost = BUILD_COSTS[selectedBuildingType as keyof typeof BUILD_COSTS] || {};
+    const canAfford =
+      (cost.wood ?? 0) <= resources.wood &&
+      (cost.stone ?? 0) <= resources.stone &&
+      (cost.food ?? 0) <= resources.food &&
+      (cost.gold ?? 0) <= resources.gold;
+    if (!canAfford) return;
+    resources.addResources({
+      wood: -(cost.wood ?? 0),
+      stone: -(cost.stone ?? 0),
+      food: -(cost.food ?? 0),
+      gold: -(cost.gold ?? 0),
+    } as any);
     addObject(base);
     setBlocked(worldToGrid(x), worldToGrid(z));
     setSelectedBuildingType(null);

@@ -31,6 +31,18 @@ export function runResourceSystem() {
   // produce is no longer used for farms/mines (handled by WorkerSystem)
   resources.addResources(produce as any);
 
+  // Consume food per worker per tick (1s). Target: 1 farm sustains ~3 workers + 1 farmer.
+  // Assume farm effective production ~0.133 food/s per active farm (2 food per 15s avg cycles) → simple model:
+  const workersCount = updated.filter((o: any) => o.type === 'worker').length;
+  const farmsActive = updated.filter((o: any) => o.type === 'farm' && (o.assignedWorkers?.length ?? 0) > 0).length;
+  // Base consumption per worker per second
+  const baseConsumptionPerWorker = 0.1; // tweakable
+  const totalConsumption = workersCount * baseConsumptionPerWorker;
+  // Add passive farm production approximation (keeps balance)
+  const farmProduction = farmsActive * 0.4; // food per second per active farm
+  const netFood = farmProduction - totalConsumption;
+  if (netFood !== 0) resources.addResources({ food: netFood } as any);
+
   // Update population cap from existing buildings
   const capFromBuildings = updated.reduce((acc: number, obj: any) => {
     if (obj.type === 'townhall') return acc + 10;
