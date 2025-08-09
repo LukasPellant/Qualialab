@@ -10,32 +10,39 @@ export function enqueueTask(task: Task) {
 
 export function runTaskSystem() {
   const { objects, setObjects } = useSandboxStore.getState() as any;
-  // Note: workers list currently unused; assignment happens inline over updated objects
-
-  const updated = objects.map((o: GameObject) => ({ ...o }));
+  let updated: GameObject[] | null = null;
 
   // Ensure workers with assignedTargetId keep a task
-  for (const worker of updated.filter((w: GameObject) => w.type === 'worker')) {
-    if (!worker.task && worker.assignedTargetId) {
-      const target = updated.find((o: GameObject) => o.id === worker.assignedTargetId);
+  for (let i = 0; i < objects.length; i += 1) {
+    const obj = objects[i] as GameObject;
+    if (obj.type !== 'worker') continue;
+    if (!obj.task && obj.assignedTargetId) {
+      const target = objects.find((o: GameObject) => o.id === obj.assignedTargetId);
       if (target) {
-        worker.task = { type: 'gather', resource: target.type === 'mine' ? 'stone' : 'wood', targetId: target.id } as Task;
-        worker.state = 'moving';
+        if (!updated) updated = objects.slice();
+        const clone = { ...obj } as GameObject;
+        clone.task = { type: 'gather', resource: target.type === 'mine' ? 'stone' : 'wood', targetId: target.id } as Task;
+        clone.state = 'moving';
+        (updated as GameObject[])[i] = clone;
       }
     }
   }
 
   // Assign tasks from queue to idle workers
-  for (const worker of updated.filter((w: GameObject) => w.type === 'worker')) {
-    if (worker.state === 'idle' && !worker.task && taskQueue.length > 0) {
+  const baseA = (updated || objects) as GameObject[];
+  for (let i = 0; i < baseA.length; i += 1) {
+    const worker = baseA[i] as GameObject;
+    if (worker.type === 'worker' && worker.state === 'idle' && !worker.task && taskQueue.length > 0) {
       const task = taskQueue.shift()!;
-      worker.task = task;
-      worker.state = 'moving';
+      if (!updated) updated = objects.slice();
+      const clone = { ...worker } as GameObject;
+      clone.task = task;
+      clone.state = 'moving';
 
       // Determine target position
       let targetPos: [number, number, number];
       if (task.type === 'gather') {
-        const target = updated.find((o: GameObject) => o.id === task.targetId);
+        const target = baseA.find((o: GameObject) => o.id === (task as Extract<Task, { type: 'gather' }>).targetId);
         if (!target) continue;
         targetPos = target.position;
       } else {
@@ -43,25 +50,28 @@ export function runTaskSystem() {
       }
 
       // Compute path in grid coords
-      const start = { x: worldToGrid(worker.position[0]), z: worldToGrid(worker.position[2]) };
+      const start = { x: worldToGrid(clone.position[0]), z: worldToGrid(clone.position[2]) };
       let end = { x: worldToGrid(targetPos[0]), z: worldToGrid(targetPos[2]) };
       end = findNearestWalkable(end);
       const path = findPath(start, end);
-      worker.path = path as any;
+      clone.path = path as any;
       if (!path || path.length === 0) {
         // Already at destination tile → start working immediately
-        worker.state = 'working';
-        worker.timer = 0;
+        clone.state = 'working';
+        clone.timer = 0;
       }
+      (updated as GameObject[])[i] = clone;
     }
   }
 
   // Ensure moving workers with a task have a computed path
-  for (const worker of updated.filter((w: GameObject) => w.type === 'worker')) {
-    if (worker.state === 'moving' && worker.task && (!worker.path || worker.path.length === 0)) {
+  const baseB = (updated || objects) as GameObject[];
+  for (let i = 0; i < baseB.length; i += 1) {
+    const worker = baseB[i] as GameObject;
+    if (worker.type === 'worker' && worker.state === 'moving' && worker.task && (!worker.path || worker.path.length === 0)) {
       let targetPos: [number, number, number];
       if (worker.task.type === 'gather') {
-        const target = updated.find((o: GameObject) => o.id === worker.task!.targetId);
+        const target = baseB.find((o: GameObject) => o.id === (worker.task as Extract<Task, { type: 'gather' }>).targetId);
         if (!target) continue;
         targetPos = target.position;
       } else {
@@ -71,13 +81,16 @@ export function runTaskSystem() {
       let end = { x: worldToGrid(targetPos[0]), z: worldToGrid(targetPos[2]) };
       end = findNearestWalkable(end);
       const path = findPath(start, end);
-      worker.path = path as any;
+      if (!updated) updated = objects.slice();
+      const clone = { ...worker } as GameObject;
+      clone.path = path as any;
       if (!path || path.length === 0) {
-        worker.state = 'working';
-        worker.timer = 0;
+        clone.state = 'working';
+        clone.timer = 0;
       }
+      (updated as GameObject[])[i] = clone;
     }
   }
 
-  setObjects(updated);
+  if (updated) setObjects(updated);
 }

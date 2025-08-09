@@ -5,20 +5,28 @@ export function runWorkerSystem() {
   const { objects, setObjects } = useSandboxStore.getState() as any;
   const { addResources } = useResourceStore.getState() as any;
 
-  const updated: GameObject[] = objects.map((o: GameObject) => ({ ...o }));
+  let updated: GameObject[] | null = null;
 
-  for (const w of updated.filter((o: GameObject) => o.type === 'worker')) {
+  for (let i = 0; i < objects.length; i += 1) {
+    const w = objects[i] as GameObject;
+    if (w.type !== 'worker') continue;
     if (w.state === 'working') {
-      w.timer = (w.timer ?? 0) + 1; // seconds per tick
+      const nextTimer = (w.timer ?? 0) + 1; // seconds per tick
       if (w.task?.type === 'gather') {
-        if (w.timer >= 0.5) { // 10x faster cycles
+        if (nextTimer >= 0.5) { // 10x faster cycles
           // gather from forest/mine target
           const targetId = (w.task as Extract<Task, { type: 'gather' }>).targetId;
-          const target = updated.find((o) => o.id === targetId);
+          const target = (updated || objects).find((o: GameObject) => o.id === targetId);
+          let targetClone: GameObject | null = null;
           if (target?.type === 'forest') {
             const available = Math.max(0, (target.stock?.wood ?? 0));
             const taken = Math.min(1, available);
-            target.stock = { ...(target.stock || {}), wood: available - taken };
+            if (!updated) updated = objects.slice();
+            // clone target
+            const tIdx = (updated as GameObject[]).findIndex((o: GameObject) => o.id === target.id);
+            targetClone = { ...(updated as GameObject[])[tIdx] } as GameObject;
+            targetClone.stock = { ...(targetClone.stock || {}), wood: available - taken };
+            (updated as GameObject[])[tIdx] = targetClone;
             addResources({ wood: taken });
           } else if (target?.type === 'mine') {
             addResources({ stone: 1 });
@@ -26,31 +34,40 @@ export function runWorkerSystem() {
             addResources({ food: 2 });
           }
 
+          if (!updated) updated = objects.slice();
+          const wClone = { ...w } as GameObject;
           if (w.assignedTargetId) {
             // Stay at the worksite and continue working cycles
-            w.task = { type: 'gather', resource: w.task.resource, targetId: w.assignedTargetId } as any;
-            w.state = 'working';
+            wClone.task = { type: 'gather', resource: (w.task as any).resource, targetId: w.assignedTargetId } as any;
+            wClone.state = 'working';
           } else {
-            w.task = null;
-            w.state = 'idle';
+            wClone.task = null;
+            wClone.state = 'idle';
           }
-          w.timer = 0;
+          wClone.timer = 0;
+          (updated as GameObject[])[i] = wClone;
         }
       }
       if (w.task?.type === 'build') {
         const buildTask = w.task as Extract<Task, { type: 'build' }>;
-        const target = updated.find((o) => o.position[0] === buildTask.targetPos[0] && o.position[2] === buildTask.targetPos[2]);
+        const target = (updated || objects).find((o: GameObject) => o.position[0] === buildTask.targetPos[0] && o.position[2] === buildTask.targetPos[2]);
         if (target) {
-          target.progress = Math.min(1, (target.progress ?? 0) + 0.2);
-          if (target.progress >= 1) {
-            w.task = null;
-            w.state = 'idle';
-            w.timer = 0;
+          if (!updated) updated = objects.slice();
+          const tIdx = (updated as GameObject[]).findIndex((o: GameObject) => o.position[0] === buildTask.targetPos[0] && o.position[2] === buildTask.targetPos[2]);
+          const targetClone = { ...(updated as GameObject[])[tIdx] } as GameObject;
+          targetClone.progress = Math.min(1, (targetClone.progress ?? 0) + 0.2);
+          (updated as GameObject[])[tIdx] = targetClone;
+          if (targetClone.progress >= 1) {
+            const wClone = { ...(updated as GameObject[])[i] } as GameObject;
+            wClone.task = null;
+            wClone.state = 'idle';
+            wClone.timer = 0;
+            (updated as GameObject[])[i] = wClone;
           }
         }
       }
     }
   }
 
-  setObjects(updated);
+  if (updated) setObjects(updated);
 }

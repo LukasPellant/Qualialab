@@ -34,15 +34,13 @@ export interface SandboxState {
 }
 
 const getInitialObjects = (): GameObject[] => [
-  { id: 'town1', type: 'townhall', position: [0, 0.2, 2] },
-  { id: 'house1', type: 'house', position: [2.5, 0.2, 2.5] },
-  { id: 'house2', type: 'house', position: [-2.5, 0.2, 2.5] },
-  { id: 'farm1', type: 'farm', position: [-2, 0.01, -1], workerCapacity: 2, assignedWorkers: [] },
-  { id: 'forest1', type: 'forest', position: [0, 0.5, -4], stock: { wood: 300 }, workerCapacity: 3, assignedWorkers: [] },
-  { id: 'mount1', type: 'mountain', position: [4, 1.2, -5] },
+  { id: 'town1', type: 'townhall', position: [0, 0, 10] },
+  { id: 'farm1', type: 'farm', position: [-10, 0, -4], workerCapacity: 2, assignedWorkers: [] },
+  { id: 'forest1', type: 'forest', position: [12, 0, -10], stock: { wood: 300 }, workerCapacity: 3, assignedWorkers: [] },
+  { id: 'mine1', type: 'mine', position: [-14, 0, 10], workerCapacity: 2, assignedWorkers: [] },
   // Keep a couple of workers for current loop
   { id: 'w1', type: 'worker', position: [0.5, 0.5, 0.5], state: 'idle', assignedTargetId: null },
-  { id: 'w2', type: 'worker', position: [1.5, 0.5, 0.5], state: 'idle', assignedTargetId: null },
+  { id: 'w2', type: 'worker', position: [2.5, 0.5, 1.5], state: 'idle', assignedTargetId: null },
 ];
 
 const useSandboxStore = create<SandboxState>((set) => ({

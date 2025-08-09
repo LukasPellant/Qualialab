@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import useSandboxStore from '@/stores/useSandboxStore';
+import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import { nanoid } from 'nanoid';
 import { setBlocked, worldToGrid } from '@/utils/grid';
 
@@ -7,20 +7,7 @@ export default function BuildPlacement() {
   const { selectedBuildingType, setSelectedBuildingType, addObject } = useSandboxStore();
   const [ghostPos, setGhostPos] = useState<[number, number] | null>(null); // [x, z]
 
-  const getYOffset = useCallback((type: string | null) => {
-    switch (type) {
-      case 'farm':
-        return 0.05; // thin slab
-      case 'mine':
-        return 0.6; // cylinder height ~1.2 → center at 0.6
-      case 'house':
-        return 0.5; // ~1m total center at 0.5
-      case 'building':
-        return 1; // generic 2m height box
-      default:
-        return 0.01;
-    }
-  }, []);
+  const getYOffset = useCallback((_type: string | null) => 0, []);
 
   const handlePointerMove = useCallback((e: any) => {
     if (!selectedBuildingType) return;
@@ -32,16 +19,19 @@ export default function BuildPlacement() {
     if (!selectedBuildingType) return;
     e.stopPropagation();
     const [x, , z] = e.point.toArray().map(Math.round);
-    const y = getYOffset(selectedBuildingType);
-    const base: any = { id: nanoid(), type: selectedBuildingType, position: [x, y, z], progress: 0 };
-    if (selectedBuildingType === 'farm') {
-      base.workerCapacity = 2;
-      base.assignedWorkers = [];
+    const base: GameObject = { id: nanoid(), type: selectedBuildingType as any, position: [x, 0, z], progress: 0 } as any;
+    if (selectedBuildingType === 'farm' || selectedBuildingType === 'mine') {
+      (base as any).workerCapacity = 2;
+      (base as any).assignedWorkers = [];
     }
-    if (selectedBuildingType === 'mine') {
-      base.workerCapacity = 2;
-      base.assignedWorkers = [];
-    }
+    // Prevent spawning inside another building (simple AABB check with padding)
+    const pad = 1.5; // conservative half-extent for larger scaled models
+    const collides = useSandboxStore.getState().objects.some((o) => {
+      if (o.type === 'worker' || o.type === 'mountain' || o.type === 'forest') return false;
+      const [ox, , oz] = o.position;
+      return Math.abs(ox - x) < pad && Math.abs(oz - z) < pad;
+    });
+    if (collides) return; // invalid placement
     if (selectedBuildingType === 'house') {
       // House affects population cap via ResourceSystem on next tick
     }
@@ -55,26 +45,26 @@ export default function BuildPlacement() {
   const Ghost = () => {
     if (!selectedBuildingType || !ghostPos) return null;
     const [x, z] = ghostPos;
-    const position: [number, number, number] = [x, getYOffset(selectedBuildingType), z];
+    const position: [number, number, number] = [x, 0, z];
     switch (selectedBuildingType) {
       case 'farm':
         return (
           <mesh position={position} castShadow>
-            <boxGeometry args={[2, 0.1, 2]} />
+            <boxGeometry args={[3, 0.2, 3]} />
             <meshStandardMaterial color="#00ff00" transparent opacity={0.4} />
           </mesh>
         );
       case 'mine':
         return (
           <mesh position={position} castShadow>
-            <boxGeometry args={[1.5, 0.8, 1.5]} />
+            <boxGeometry args={[2.5, 1.0, 2.5]} />
             <meshStandardMaterial color="#8888ff" transparent opacity={0.4} />
           </mesh>
         );
       case 'house':
         return (
           <mesh position={position} castShadow>
-            <boxGeometry args={[1.6, 1, 1.6]} />
+            <boxGeometry args={[2.5, 1.6, 2.5]} />
             <meshStandardMaterial color="#ffcc99" transparent opacity={0.4} />
           </mesh>
         );
