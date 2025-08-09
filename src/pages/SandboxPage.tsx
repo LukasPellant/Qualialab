@@ -3,13 +3,15 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stats, Sky, useTexture } from '@react-three/drei';
 import { RepeatWrapping } from 'three';
 import { Box, Chip } from '@mui/material';
-import { Worker, Building, Farm, Forest, Mine, Mountain, House, TownHall } from '../objects';
+import { Worker, Building, Farm, Forest, Mine, Mountain, House, TownHall, Warehouse, Market } from '../objects';
 import useSandboxStore from '../stores/useSandboxStore';
 import HUD from '../components/HUD';
 import BuildMenu from '../components/BuildMenu';
 import BuildPlacement from '../components/BuildPlacement';
 import WorkerPanel from '../components/WorkerPanel';
 import GameLoopUpdater from '../components/GameLoopUpdater';
+import MarketDialog from '../components/MarketDialog';
+import BuildingPanel from '../components/BuildingPanel';
 import { startGameLoop } from '../systems/TickSystem';
 
 type PlayerMode = 'god' | 'character';
@@ -88,6 +90,10 @@ export default function SandboxPage() {
                 return <Mine key={id} id={id} {...rest} />;
               case 'mountain':
                 return <Mountain key={id} {...rest} />;
+              case 'warehouse':
+                return <Warehouse key={id} id={id} {...rest} />;
+              case 'market':
+                return <Market key={id} id={id} {...rest} />;
               default:
                 return null;
             }
@@ -122,6 +128,8 @@ export default function SandboxPage() {
       </Canvas>
       <BuildMenu />
       <WorkerPanel />
+      <MarketDialog />
+      <BuildingPanel />
     </Box>
   );
 }

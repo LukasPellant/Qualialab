@@ -1,63 +1,140 @@
 import useResourceStore from '../stores/useResourceStore';
 import useSandboxStore from '../stores/useSandboxStore';
 import usePopulationStore from '@/stores/usePopulationStore';
+import useMarketStore from '@/stores/useMarketStore';
+import { getBuildingConfig, getUpgradeConfig } from '@/data/buildingData';
 
 export function runResourceSystem() {
-  const { objects, setObjects } = useSandboxStore.getState() as any;
+  const { objects, setObjects, updateRates } = useSandboxStore.getState() as any;
   const population = usePopulationStore.getState();
   const resources = useResourceStore.getState();
-  const produce = { wood: 0, food: 0, stone: 0, gold: 0 };
+  const market = useMarketStore.getState();
+  
+  // Calculate total storage capacity
+  const totalStorage = objects.reduce((acc: any, obj: any) => {
+    if (obj.storageMax) {
+      Object.keys(obj.storageMax).forEach(resource => {
+        acc[resource] = (acc[resource] || 0) + (obj.storageMax[resource] || 0);
+      });
+    }
+    return acc;
+  }, {});
+
+  // Check if we're at storage cap for any resource
+  const isStorageFull = (resource: string) => {
+    const current = resources[resource as keyof typeof resources] || 0;
+    const max = totalStorage[resource] || Infinity;
+    return current >= max;
+  };
+
+  let rates = {
+    foodPerMin: 0,
+    woodPerMin: 0, 
+    stonePerMin: 0,
+    goldPerMin: 0,
+    consumptionPerMin: 0,
+  };
 
   const updated = objects.map((obj: any) => {
+    const config = getBuildingConfig(obj.type);
+    if (!config) return obj;
+
+    // Apply upgrades
+    let modifiers = { jobs: 1, yield: 1, cycle: 1, foodPassive: 0, globalFoodConsumption: 1 };
+    if (obj.upgrades) {
+      obj.upgrades.forEach((upgradeId: string) => {
+        const upgrade = getUpgradeConfig(upgradeId);
+        if (upgrade?.mods) {
+          Object.entries(upgrade.mods).forEach(([key, value]) => {
+            const [prop, op] = key.split(':');
+            if (op === '+') modifiers[prop as keyof typeof modifiers] = (modifiers[prop as keyof typeof modifiers] || 0) + value;
+            if (op === 'x') modifiers[prop as keyof typeof modifiers] = (modifiers[prop as keyof typeof modifiers] || 1) * value;
+            if (prop === 'foodPassive') modifiers.foodPassive += value;
+          });
+        }
+      });
+    }
+
     if (obj.type === 'farm' || obj.type === 'mine' || obj.type === 'forest') {
       const workers = obj.assignedWorkers?.length ?? 0;
-      obj.isActive = workers > 0; // hint for UI
+      obj.isActive = workers > 0 && !isStorageFull(config.base.resource || 'food');
+      
+      // Calculate production rate per minute
+      if (obj.isActive && config.base.resource) {
+        const cycleTimeSeconds = (config.base.cycle || 60) * modifiers.cycle;
+        const yieldPerCycle = (config.base.yield || 1) * modifiers.yield;
+        const ratePerMinute = (yieldPerCycle / cycleTimeSeconds) * 60 * workers;
+        rates[`${config.base.resource}PerMin` as keyof typeof rates] += ratePerMinute;
+      }
+
+      // Add passive production from upgrades
+      if (modifiers.foodPassive > 0) {
+        rates.foodPerMin += modifiers.foodPassive;
+      }
     }
-    if (obj.type === 'farm') {
-      // Resource production moved to WorkerSystem (on arrival); keep zero here to avoid double counting
-    }
-    if (obj.type === 'mine') {
-      // Production handled by WorkerSystem when worker finishes cycle
-    }
+
     if (obj.type === 'forest') {
-      // passive stock growth (faster) with higher cap
-      const wood = Math.min(300, (obj.stock?.wood ?? 300) + 3);
-      return { ...obj, stock: { ...(obj.stock || {}), wood } };
+      // Passive stock growth - regrowth per minute converted to per second
+      const regrowthRate = config.base.regrowthRate || 0.2; // per minute  
+      const stockCap = config.base.stockCap || 300;
+      const currentStock = obj.stock?.wood ?? stockCap;
+      const newStock = Math.min(stockCap, currentStock + (regrowthRate / 60)); // per second
+      return { ...obj, stock: { ...(obj.stock || {}), wood: newStock } };
     }
+
     return obj;
   });
 
   setObjects(updated);
-  // produce is no longer used for farms/mines (handled by WorkerSystem)
-  resources.addResources(produce as any);
 
-  // Consume food per worker per tick (1s). Target: 1 farm sustains ~3 workers + 1 farmer.
-  // Assume farm effective production ~0.133 food/s per active farm (2 food per 15s avg cycles) → simple model:
+  // Calculate consumption rate
   const workersCount = updated.filter((o: any) => o.type === 'worker').length;
-  const farmsActive = updated.filter((o: any) => o.type === 'farm' && (o.assignedWorkers?.length ?? 0) > 0).length;
-  // Base consumption per worker per second
-  const baseConsumptionPerWorker = 0.1; // tweakable
-  const totalConsumption = workersCount * baseConsumptionPerWorker;
-  // Add passive farm production approximation (keeps balance)
-  const farmProduction = farmsActive * 0.4; // food per second per active farm
-  const netFood = farmProduction - totalConsumption;
-  if (netFood !== 0) resources.addResources({ food: netFood } as any);
+  const baseConsumptionPerWorker = 1.2; // per minute per worker
+  
+  // Apply global consumption modifiers from shrines
+  let globalConsumptionMod = 1;
+  updated.forEach((obj: any) => {
+    if (obj.upgrades) {
+      obj.upgrades.forEach((upgradeId: string) => {
+        const upgrade = getUpgradeConfig(upgradeId);
+        if (upgrade?.mods?.['globalFoodConsumption:x']) {
+          globalConsumptionMod *= upgrade.mods['globalFoodConsumption:x'];
+        }
+      });
+    }
+  });
+  
+  rates.consumptionPerMin = workersCount * baseConsumptionPerWorker * globalConsumptionMod;
+  
+  // Apply consumption every second
+  const foodConsumptionPerSecond = rates.consumptionPerMin / 60;
+  if (foodConsumptionPerSecond > 0) {
+    resources.addResources({ food: -foodConsumptionPerSecond } as any);
+  }
+
+  // Update rates in store
+  updateRates(rates);
 
   // Update population cap from existing buildings
   const capFromBuildings = updated.reduce((acc: number, obj: any) => {
-    if (obj.type === 'townhall') return acc + 10;
-    if (obj.type === 'house') return acc + 5;
-    return acc;
+    const config = getBuildingConfig(obj.type);
+    return acc + (config?.base.populationCap || 0);
   }, 0);
+  
   if (capFromBuildings !== population.cap) {
     population.setCap(capFromBuildings || population.cap);
   }
 
-  // Auto-recruit logic: if not recruiting and resources allow and under cap
+  // Updated auto-recruit logic - require better food situation
+  const netFoodRate = rates.foodPerMin - rates.consumptionPerMin;
   const canStartRecruit =
-    population.recruitTimer <= 0 && population.idle < population.cap && resources.food >= 40 && resources.gold >= 10;
+    population.recruitTimer <= 0 && 
+    population.idle < population.cap && 
+    resources.food >= 60 && 
+    resources.gold >= 10 &&
+    netFoodRate > 0.8;
+    
   if (canStartRecruit) {
-    // Deduct upfront and start timer (30s)
     resources.addResources({ food: -40, gold: -10 } as any);
     population.startRecruit(30);
   }
@@ -70,4 +147,7 @@ export function runResourceSystem() {
       after.setIdle(after.idle + 1);
     }
   }
+
+  // Update market prices periodically
+  market.updatePrices();
 }

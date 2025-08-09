@@ -7,4 +7,12 @@ export default {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        resolveJsonModule: true,
+        esModuleInterop: true,
+      },
+    },
+  },
 };

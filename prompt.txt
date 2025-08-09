@@ -1,73 +1,144 @@
-1 Nový klíčový systém : Populace
-Prvek	Funkce	Výchozí hodnota
-Population Cap	Max. počet obyvatel – součet kapacit všech Houses + Town Hall.	10
-Idle Villagers	Volní lidé ve frontě; mohou být najati coby Worker nebo Soldier.	5 (start)
-Growth	Recruit v Town Hall: +1 Villager ⇒ −20 food, −5 gold, trvá 30 s.	—
+Cíle sprintu
+Vybalancovat ekonomiku (jasné sazby produkce/spotřeby, soft capy, storage).
 
-V kódu: usePopulationStore { idle, cap }; ResourceSystem při každém ticku kontroluje možné rekrutování/limity.
+Vylepšit budovy o navazující upgrady (Farm ↔ Fields/Mill, Mine ↔ Shaft/Smelter, Houses ↔ Tavern/Shrine).
 
-2 Budovy – tabulka
-Tier	Budova	Účel	Build Cost (wood/stone/food/gold)	Build Time	Kapacita / Bonus
-0 (start)	Town Hall	centrální sklad, rekrut Villagers, respawn hráče	0 / 0 / 0 / 0	—	cap +10, storage 500 každá surovina
-1	House	zvyšuje populace cap	25 / 10 / 0 / 0	20 s	cap +5
-1	Farm (už máme)	+2 food/tick	20 / 0 / 0 / 0	25 s	—
-1	Lumber Camp	zkracuje „gather wood“ čas o 30 %	30 / 5 / 0 / 0	30 s	storage +200 wood
-2	Stone Quarry	+1 stone/tick (musí stát u Mountain)	20 / 20 / 0 / 0	40 s	—
-2	Watchtower	odhalí mlhu 12 ⨉ 12 polí, střílí na bandity (později)	40 / 15 / 0 / 5	45 s	HP 300
-3	Barracks	trénuje Soldiers z Villagers (+1 stone, +10 gold, 40 s)	60 / 40 / 20 / 20	60 s	fronta 2
+Přidat Tržiště (základ dynamických cen, směna zdrojů).
 
-(„Tier“ = minimální celkový počet postavených budov; slouží jako jednoduchý tech-gating.)
+Upevnit základy: job sloty, re-pathing, UI pro náklady/bonusy, testy.
 
-3 Začátek hry
-Mapa spawnuje Town Hall, 2 House, 1 Farm, 1 Forest, 1 Mountain.
+1) Balancing – zdroje & populace
+Cílové tempo (orientačně, na 1 assignovaného workera):
 
-Resources start: wood = 100, stone = 50, food = 120, gold = 50.
+Food: +3/min (Farm), spotřeba Worker: −1.2/min (čistý přebytek ~1.8/min).
 
-Idle Villagers = 5, cap = 20 → 5 slotů volných.
+Wood: +2/min (Forest), regrowth lesa: +12/min do zásoby (cap per forest).
 
-4 Toky práce
-Recruit → Worker
+Stone: +1.2/min (Mine).
 
-Hráč klikne na idle villager v UI (nebo hotkey W).
+Gold: zatím jen z Tržiště (pro začátek, + události později).
 
-Worker vytvořen (odebere 1 idle).
+Mechaniky:
 
-Gather (dřevo / kámen)
+Každá budova má job slots (Farm 2, Mine 2, Forest 2; upgrade to mění).
 
-Pokud u suroviny postaven specializovaný camp/quarry → zrychlený workDuration = base * 0.7.
+Jeden job = cyklus cycleTime (s) a yield (surovina/částky).
 
-Build request
+Storage: Town Hall 500/typ, Warehouse (nová) +300/typ. Přes cap → výroba se pauzne.
 
-BuildMenu předá Task(type:"build", blueprint:"House") do TaskSystem.
+Auto-recruit zůstává, ale naváže se na food ≥ 60 + net food > 0.8/min.
 
-Deduct resources okamžitě; pokud chybí → toast „Not enough …“.
+Změny ve store (Zustand):
 
-Soldier training (až Tier 3)
+buildings[].jobs: {max, assigned}
 
-Barracks queue slot → −1 idle villager, −1 stone, −10 gold, −20 food.
+rates: {foodPerMin, woodPerMin, stonePerMin, consumptionPerMin} (odvozené, pro HUD).
 
-Po 40 s nový soldier entita.
+Testy (Jest):
 
-5 Úpravy subsystémů
-Systém	Změna
-usePopulationStore	{ idle: number, cap: number } + selector canRecruit.
-ResourceSystem	Funkce autoRecruit() – pokud food ≥ 40 && gold ≥ 10 && idle < cap, zahájí recruit tick job.
-TaskSystem	Nový task type "train" (Barracks).
-UI	HUDBar: přidat idle/cap ikonku 👥 5 / 20.
-WorkerTable: sloupec „Unassign“ (vrací worker do idle).
-PathSystem	House, Barracks, Tower přidávají blok do gridu.
-Save/Load	Snapshot nových polí (population, building.progress).
+5 min sim při 1 Farm + 1 Worker ⇒ food roste ≥ 8.
 
-6 Balancing směrem k playable loop
-Dřevěná ekonomika: 1 Worker + Forest → +1 wood / 4 s ⇒ Farm & House ufinancovatelné za ~3 min.
+Při plném storage se produkce pauzne do uvolnění místa.
 
-Recruit náklad (20 food + 5 gold) vynutí postavit Farm(y) než se spamují Workerzy.
+2) Upgrady budov („přístavby“)
+Upgrady jsou připojené k parent budově, stojí zdroje, mění parametry (multiplikátory), mohou zabrat sousední políčko (blok do pathfindingu).
 
-Tier 2 vyžaduje 6 budov celkem → hráč musí rozšířit základnu a řešit space/path.
+Farm
+Fields (Pole): +1 job slot, Farm yield ×1.25.
+Cost: 30 wood, 10 stone; BuildTime: 30 s.
 
-7 Future hooks
-Population Happiness (spotřeba food/wood per tick; nízké = rebelie).
+Mill (Mlýn): Farm cycleTime ×0.8, přidá pasivní +0.5 food/min.
+Cost: 40 wood, 20 stone, 10 gold.
 
-Shared pool pro Soldiers – jedním klikem lze „conscription“; Worker ⟷ Soldier beze ztrát.
+Mine
+Shaft (Šachta): Mine yield ×1.3, ale cycleTime ×1.1 (hlouběji, těžší).
+Cost: 25 wood, 35 stone.
 
-Event-driven growth: při stavbě každé House šance 10 % že přibude “free villager” (rodí se děti).
+Smelter (Huť): 1 job slot „smelt“ (převod stone→gold pomalu), vyžaduje 1 wood/cyklus jako palivo.
+Cost: 50 wood, 30 stone, 20 gold.
+
+Housing
+Tavern (Hospoda): +1 idle growth šance (náhodný přírůstek 1 villager za 5–10 min, když je přebytek jídla), zvedá happiness (hook do budoucna).
+Cost: 40 wood, 10 stone, 10 gold.
+
+Shrine (Svatiňka): −10 % spotřeba food na domácnost (globální modifikátor na consumptionPerMin).
+Cost: 20 wood, 20 stone.
+
+UI:
+
+V panelu budovy nová záložka Upgrades: karta s názvem, popisem, cenou, tlačítko Build (disabled pokud chybí zdroje/sousední místo).
+
+Testy:
+
+Aktivace Fields zvýší farmYield ≥ 1.2×.
+
+Smelter při nedostatku wood → pauzne smelting job, nepadá.
+
+3) Tržiště (Market v1)
+Funkce: koupit/prodat wood/stone/food za gold podle dynamické ceny.
+Cena (jednoduchý model):
+price(resource) = base * (1 + α * (demand - supply)/cap)
+
+base: wood = 1, stone = 2, food = 1.5; α = 0.4, cap = 200.
+
+Nákup i prodej posouvají supply/demand (vrací se k base pomalu: decay −10 % směrem k 0/30 s).
+
+UI: panel s tlačítky ±1/±5/±20, aktuální cenou a náhledem dopadu na zásoby.
+Budova: Market (stavba) odemyká panel; bez ní jen read-only ceny.
+
+Testy:
+
+Opakovaný nákup stejné komodity zvýší cenu; interval bez transakcí ji vrátí k base.
+
+4) Poladit Path/Jobs
+Re-path triggers: při umístění budovy/upgrade vyvolej re-path všem workerům s aktivní cestou, pokud jejich další uzel je nově blokovaný.
+
+Slot priority: TaskSystem přiřazuje práci do budov, kde assigned < max.
+
+Fail-safe: Worker po 3 sek. bez posunu → auto re-path k cíli.
+
+5) Datové tabulky (JSON)
+Zaveď content/buildings.json a content/upgrades.json (jediný zdroj pravdy pro náklady/bonusy).
+Příklad (zkráceně):
+
+json
+Copy
+Edit
+// buildings.json
+{"farm":{"jobs":2,"base":{"yield":3,"cycle":60},"cost":{"wood":20}},
+ "mine":{"jobs":2,"base":{"yield":1.2,"cycle":60},"cost":{"wood":20,"stone":20}}}
+
+// upgrades.json
+{"farm:fields":{"parent":"farm","mods":{"jobs:+":1,"yield:x":1.25},"cost":{"wood":30,"stone":10}},
+ "farm:mill":{"parent":"farm","mods":{"cycle:x":0.8,"foodPassive:+":0.5},"cost":{"wood":40,"stone":20,"gold":10}}}
+6) UI úpravy (MUI)
+HUD: přidej net rates (šípky ↑↓ a hodnoty /min).
+
+Panel budovy: sekce Workers (assign/unassign), Upgrades, Storage (aktuální/plný).
+
+Market dialog: přístup z Town Hall a z nové budovy Market.
+
+7) Plán pro Cursor (komitní kroky)
+content: přidej buildings.json, upgrades.json, loader, validace.
+
+systems: přidej job slots, multiplikátory, storage cap stop/start.
+
+market: implementuj cenu, decay, buy/sell akce, UI dialog.
+
+path: re-path triggers + fail-safe.
+
+ui: Upgrades tab + net rates v HUD, Market dialog.
+
+tests: Jest pro balance (5 min sim), storage cap, market price decay.
+
+docs: krátké BALANCING.md s cílovými čísly a jak je měnit.
+
+Akceptace sprintu:
+
+10 min hry bez micromanagementu → zásoby nekmitají, populace roste o 1–2.
+
+Postavené Fields a Mill znatelně zlepší food ekonomiku.
+
+Market funguje (cena roste při nákupech, klesá v čase).
+
+Žádné zaseklé cesty po dostavbě budov.

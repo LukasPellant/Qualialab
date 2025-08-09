@@ -6,3 +6,5 @@ export { default as Mine } from './Mine';
 export { default as Mountain } from './Mountain';
 export { default as House } from './House';
 export { default as TownHall } from './TownHall';
+export { default as Warehouse } from './Warehouse';
+export { default as Market } from './Market';

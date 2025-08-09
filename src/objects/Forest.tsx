@@ -6,9 +6,11 @@ import { SkeletonUtils } from 'three-stdlib';
 
 export function Forest({ position = [0, 0, 0] as [number, number, number], id }: { position?: [number, number, number]; id?: string }) {
   const object = useSandboxStore((s) => (id ? s.objects.find((o) => o.id === id) : undefined));
+  const { setSelectedBuildingId } = useSandboxStore();
   const stock = object?.stock?.wood ?? 300;
   const assigned = object?.assignedWorkers?.length ?? 0;
   const capacity = object?.workerCapacity ?? 0;
+  const upgrades = object?.upgrades || [];
   const scale = stock > 0 ? 1 : 0.6; // shrink when depleted
   const fbx = useFBX('/models/forest/FOREST_GROVE_low_pol_0809101112_texture.fbx');
   const model = useMemo(() => (fbx ? SkeletonUtils.clone(fbx) : null), [fbx]);
@@ -42,7 +44,7 @@ export function Forest({ position = [0, 0, 0] as [number, number, number], id }:
   }, [model]);
 
   return (
-    <group position={[position[0], 0, position[2]]} scale={scale}>
+    <group position={[position[0], 0, position[2]]} scale={scale} onClick={(e) => { e.stopPropagation(); if (id) setSelectedBuildingId(id); }}>
       <group position={[0, offsetY, 0]}>
         {model ? (
           <primitive object={model} />
@@ -53,9 +55,21 @@ export function Forest({ position = [0, 0, 0] as [number, number, number], id }:
           </mesh>
         )}
       </group>
+      
       <Text position={[0, 1.6, 0]} fontSize={0.3} color="white" anchorX="center" anchorY="middle">
-        {assigned}/{capacity}
+        {assigned}/{capacity} (click)
       </Text>
+      
+      <Text position={[0, 2.1, 0]} fontSize={0.2} color="lightblue" anchorX="center" anchorY="middle">
+        Wood: {Math.floor(stock)}/300
+      </Text>
+      
+      {/* Placeholder pro budoucí forest upgrady */}
+      {upgrades.length > 0 && (
+        <Text position={[0, 2.6, 0]} fontSize={0.18} color="lightgreen" anchorX="center" anchorY="middle">
+          Upgrades: {upgrades.length}
+        </Text>
+      )}
     </group>
   );
 }

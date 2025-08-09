@@ -1,0 +1,78 @@
+{
+  "farm": {
+    "jobs": 2,
+    "base": {
+      "yield": 30,
+      "cycle": 6,
+      "resource": "food"
+    },
+    "cost": {
+      "wood": 50,
+      "stone": 20
+    },
+    "storage": 0
+  },
+  "mine": {
+    "jobs": 2,
+    "base": {
+      "yield": 12,
+      "cycle": 6,
+      "resource": "stone"
+    },
+    "cost": {
+      "wood": 30,
+      "stone": 40
+    },
+    "storage": 0
+  },
+  "forest": {
+    "jobs": 2,
+    "base": {
+      "yield": 20,
+      "cycle": 6,
+      "resource": "wood",
+      "regrowthRate": 2,
+      "stockCap": 300
+    },
+    "cost": {},
+    "storage": 0
+  },
+  "house": {
+    "jobs": 0,
+    "base": {
+      "populationCap": 5
+    },
+    "cost": {
+      "wood": 40,
+      "stone": 10
+    },
+    "storage": 0
+  },
+  "townhall": {
+    "jobs": 0,
+    "base": {
+      "populationCap": 10
+    },
+    "cost": {},
+    "storage": 500
+  },
+  "warehouse": {
+    "jobs": 0,
+    "base": {},
+    "cost": {
+      "wood": 80,
+      "stone": 60
+    },
+    "storage": 300
+  },
+  "market": {
+    "jobs": 0,
+    "base": {},
+    "cost": {
+      "wood": 60,
+      "stone": 40,
+      "gold": 30
+    },
+    "storage": 0
+  }
+}

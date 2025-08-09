@@ -1,10 +1,9 @@
 import useSandboxStore, { type GameObject } from '@/stores/useSandboxStore';
 import useResourceStore from '@/stores/useResourceStore';
-import { BUILD_COSTS } from '@/constants/buildings';
+import { getBuildingConfig } from '@/data/buildingData';
 import { Paper, Typography, Select, MenuItem, FormControl, InputLabel, Box, Chip, Stack } from '@mui/material';
 
-const BUILDINGS: GameObject['type'][] = ['farm', 'mine', 'house'];
-const COSTS = BUILD_COSTS;
+const BUILDINGS: GameObject['type'][] = ['farm', 'mine', 'house', 'warehouse', 'market'];
 
 export default function BuildMenu() {
   const { selectedBuildingType, setSelectedBuildingType } = useSandboxStore();
@@ -49,7 +48,8 @@ export default function BuildMenu() {
           sx={{ color: 'white', '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' } }}
         >
           {BUILDINGS.map((b) => {
-            const cost = COSTS[b as 'farm' | 'mine' | 'house'] || {};
+            const config = getBuildingConfig(b);
+            const cost = config?.cost || {};
             const affordable =
               (cost.wood ?? 0) <= resources.wood &&
               (cost.stone ?? 0) <= resources.stone &&

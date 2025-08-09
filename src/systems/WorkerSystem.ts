@@ -1,5 +1,6 @@
 import useSandboxStore, { type GameObject, type Task } from '@/stores/useSandboxStore';
 import useResourceStore from '@/stores/useResourceStore';
+import { getBuildingConfig, getUpgradeConfig } from '@/data/buildingData';
 
 export function runWorkerSystem() {
   const { objects, setObjects } = useSandboxStore.getState() as any;
@@ -13,39 +14,69 @@ export function runWorkerSystem() {
     if (w.state === 'working') {
       const nextTimer = (w.timer ?? 0) + 1; // seconds per tick
       if (w.task?.type === 'gather') {
-        if (nextTimer >= 0.5) { // 10x faster cycles
-          // gather from forest/mine target
-          const targetId = (w.task as Extract<Task, { type: 'gather' }>).targetId;
-          const target = (updated || objects).find((o: GameObject) => o.id === targetId);
-          let targetClone: GameObject | null = null;
-          if (target?.type === 'forest') {
-            const available = Math.max(0, (target.stock?.wood ?? 0));
-            const taken = Math.min(1, available);
-            if (!updated) updated = objects.slice();
-            // clone target
-            const tIdx = (updated as GameObject[]).findIndex((o: GameObject) => o.id === target.id);
-            targetClone = { ...(updated as GameObject[])[tIdx] } as GameObject;
-            targetClone.stock = { ...(targetClone.stock || {}), wood: available - taken };
-            (updated as GameObject[])[tIdx] = targetClone;
-            addResources({ wood: taken });
-          } else if (target?.type === 'mine') {
-            addResources({ stone: 1 });
-          } else if (target?.type === 'farm') {
-            addResources({ food: 2 });
+        const targetId = (w.task as Extract<Task, { type: 'gather' }>).targetId;
+        const target = (updated || objects).find((o: GameObject) => o.id === targetId);
+        
+        if (target) {
+          const config = getBuildingConfig(target.type);
+          if (!config) continue;
+
+          // Apply upgrades to get modified cycle time and yield
+          let modifiers = { yield: 1, cycle: 1 };
+          if (target.upgrades) {
+            target.upgrades.forEach((upgradeId: string) => {
+              const upgrade = getUpgradeConfig(upgradeId);
+              if (upgrade?.mods) {
+                Object.entries(upgrade.mods).forEach(([key, value]) => {
+                  const [prop, op] = key.split(':');
+                  if (op === 'x' && (prop === 'yield' || prop === 'cycle')) {
+                    modifiers[prop as keyof typeof modifiers] *= value;
+                  }
+                });
+              }
+            });
           }
 
-          if (!updated) updated = objects.slice();
-          const wClone = { ...w } as GameObject;
-          if (w.assignedTargetId) {
-            // Stay at the worksite and continue working cycles
-            wClone.task = { type: 'gather', resource: (w.task as any).resource, targetId: w.assignedTargetId } as any;
-            wClone.state = 'working';
+          const cycleTime = (config.base.cycle || 60) * modifiers.cycle;
+          const yield_ = (config.base.yield || 1) * modifiers.yield;
+          
+          if (nextTimer >= cycleTime) {
+            let targetClone: GameObject | null = null;
+            
+            if (target?.type === 'forest') {
+              const available = Math.max(0, (target.stock?.wood ?? 0));
+              const taken = Math.min(yield_, available);
+              if (!updated) updated = objects.slice();
+              const tIdx = (updated as GameObject[]).findIndex((o: GameObject) => o.id === target.id);
+              targetClone = { ...(updated as GameObject[])[tIdx] } as GameObject;
+              targetClone.stock = { ...(targetClone.stock || {}), wood: available - taken };
+              (updated as GameObject[])[tIdx] = targetClone;
+              addResources({ wood: taken });
+            } else if (target?.type === 'mine') {
+              addResources({ stone: yield_ });
+            } else if (target?.type === 'farm') {
+              addResources({ food: yield_ });
+            }
+
+            if (!updated) updated = objects.slice();
+            const wClone = { ...w } as GameObject;
+            if (w.assignedTargetId) {
+              // Stay at the worksite and continue working cycles
+              wClone.task = { type: 'gather', resource: (w.task as any).resource, targetId: w.assignedTargetId } as any;
+              wClone.state = 'working';
+            } else {
+              wClone.task = null;
+              wClone.state = 'idle';
+            }
+            wClone.timer = 0;
+            (updated as GameObject[])[i] = wClone;
           } else {
-            wClone.task = null;
-            wClone.state = 'idle';
+            // Update timer
+            if (!updated) updated = objects.slice();
+            const wClone = { ...w } as GameObject;
+            wClone.timer = nextTimer;
+            (updated as GameObject[])[i] = wClone;
           }
-          wClone.timer = 0;
-          (updated as GameObject[])[i] = wClone;
         }
       }
       if (w.task?.type === 'build') {
