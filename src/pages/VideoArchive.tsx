@@ -49,6 +49,8 @@ const VideoArchive = () => {
   const [search, setSearch] = useState('');
   const [droneFilter, setDroneFilter] = useState<string | null>(null);
   const [selected, setSelected] = useState<VideoFile | null>(null);
+  const [adminKey, setAdminKey] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchVideos = useCallback(async () => {
@@ -94,6 +96,32 @@ const VideoArchive = () => {
     const next = new URLSearchParams(searchParams);
     next.set('uid', v.uid);
     setSearchParams(next);
+  };
+
+  const saveMeta = async () => {
+    if (!selected) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/stream/meta/${selected.uid}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ meta: {
+          name: selected.name,
+          droneSize: selected.droneSize,
+          date: selected.date,
+          location: selected.location,
+          camera: selected.camera,
+          description: selected.description,
+          tags: selected.tags,
+          notes: selected.notes,
+        } }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -181,6 +209,25 @@ const VideoArchive = () => {
                     <Button startIcon={<ShareIcon />} onClick={() => navigator.clipboard.writeText(window.location.href)}>Sdílet</Button>
                   </Stack>
                 </Stack>
+                {/* Metadata editor (admin only via key) */}
+                <Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                    <TextField label="Admin Key" type="password" size="small" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} sx={{ width: { sm: 240 } }} />
+                    <TextField label="Název" size="small" value={selected.name || ''} onChange={(e) => setSelected({ ...selected, name: e.target.value })} fullWidth />
+                    <TextField label="Drone Size" size="small" value={selected.droneSize || ''} onChange={(e) => setSelected({ ...selected, droneSize: e.target.value })} sx={{ width: { sm: 200 } }} />
+                  </Stack>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 1 }}>
+                    <TextField label="Datum" size="small" value={selected.date || ''} onChange={(e) => setSelected({ ...selected, date: e.target.value })} sx={{ width: { sm: 200 } }} />
+                    <TextField label="Lokace" size="small" value={selected.location || ''} onChange={(e) => setSelected({ ...selected, location: e.target.value })} sx={{ width: { sm: 240 } }} />
+                    <TextField label="Kamera" size="small" value={selected.camera || ''} onChange={(e) => setSelected({ ...selected, camera: e.target.value })} sx={{ width: { sm: 240 } }} />
+                  </Stack>
+                  <TextField label="Popis" size="small" value={selected.description || ''} onChange={(e) => setSelected({ ...selected, description: e.target.value })} fullWidth multiline rows={2} sx={{ mt: 1 }} />
+                  <TextField label="Tagy (čárkami)" size="small" value={(selected.tags || []).join(', ')} onChange={(e) => setSelected({ ...selected, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} fullWidth sx={{ mt: 1 }} />
+                  <TextField label="Poznámky" size="small" value={selected.notes || ''} onChange={(e) => setSelected({ ...selected, notes: e.target.value })} fullWidth sx={{ mt: 1 }} />
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <Button variant="contained" disabled={!adminKey || isSaving} onClick={saveMeta}>Uložit metadata</Button>
+                  </Stack>
+                </Paper>
               </>
             )}
           </Paper>
