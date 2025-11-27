@@ -16,17 +16,13 @@ import {
   InputAdornment,
   Paper,
   Divider,
-  List,
-  ListItemButton,
-  ListItemText,
-  ListItemIcon,
+  useTheme,
+  Grow,
 } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
-import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Link, useSearchParams } from 'react-router-dom';
 
 interface VideoFile {
@@ -45,6 +41,7 @@ interface VideoFile {
 const WORKER_BASE_URL = 'https://video-upload-worker.pellant-lukas.workers.dev';
 
 const VideoArchive = () => {
+  const theme = useTheme();
   const [videos, setVideos] = useState<VideoFile[]>([]);
   const [search, setSearch] = useState('');
   const [droneFilter, setDroneFilter] = useState<string | null>(null);
@@ -96,6 +93,7 @@ const VideoArchive = () => {
     const next = new URLSearchParams(searchParams);
     next.set('uid', v.uid);
     setSearchParams(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const saveMeta = async () => {
@@ -105,16 +103,18 @@ const VideoArchive = () => {
       const res = await fetch(`/api/stream/meta/${selected.uid}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify({ meta: {
-          name: selected.name,
-          droneSize: selected.droneSize,
-          date: selected.date,
-          location: selected.location,
-          camera: selected.camera,
-          description: selected.description,
-          tags: selected.tags,
-          notes: selected.notes,
-        } }),
+        body: JSON.stringify({
+          meta: {
+            name: selected.name,
+            droneSize: selected.droneSize,
+            date: selected.date,
+            location: selected.location,
+            camera: selected.camera,
+            description: selected.description,
+            tags: selected.tags,
+            notes: selected.notes,
+          }
+        }),
       });
       if (!res.ok) throw new Error(await res.text());
     } catch (e) {
@@ -125,74 +125,93 @@ const VideoArchive = () => {
   };
 
   return (
-    <Box sx={{ px: { xs: 1.5, sm: 2, md: 3 }, py: 2 }}>
-      <Breadcrumbs sx={{ mb: 1 }}>
-        <MLink component={Link} to="/">Domů</MLink>
-        <Typography color="text.secondary">Archiv</Typography>
-        {selected && <Typography color="text.primary" noWrap maxWidth={280}>{selected.name}</Typography>}
+    <Box>
+      <Breadcrumbs sx={{ mb: 3 }}>
+        <MLink component={Link} to="/" color="inherit" underline="hover">Domů</MLink>
+        <Typography color="primary">Archiv</Typography>
       </Breadcrumbs>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '260px 1fr' }, gap: 3, alignItems: 'start' }}>
-        {/* Left: Sidebar navigation & controls */}
-        <Paper elevation={6} sx={{ p: 2, position: 'sticky', top: 88, height: 'fit-content', bgcolor: 'background.paper' }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>Navigace</Typography>
-          <Divider sx={{ mb: 1 }} />
-          <List dense sx={{ mb: 1 }}>
-            <ListItemButton component={Link} to="/">
-              <ListItemIcon><HomeIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
-              <ListItemText primary="Domů" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/video-archive">
-              <ListItemIcon><VideoLibraryIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
-              <ListItemText primary="Archiv videí" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/about">
-              <ListItemIcon><InfoOutlinedIcon sx={{ color: 'text.secondary' }} /></ListItemIcon>
-              <ListItemText primary="O projektu" />
-            </ListItemButton>
-          </List>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '300px 1fr' }, gap: 4, alignItems: 'start' }}>
+        {/* Left: Sidebar controls */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            position: 'sticky',
+            top: 100,
+            height: 'fit-content',
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>Filtrování</Typography>
 
-          <Typography variant="subtitle2" sx={{ mb: 1, mt: 1 }}>Hledat</Typography>
           <TextField
             fullWidth
             placeholder="Hledat videa..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             size="small"
-            InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>) }}
-            sx={{ mb: 1 }}
+            InputProps={{
+              startAdornment: (<InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>),
+              sx: { borderRadius: 2 }
+            }}
+            sx={{ mb: 3 }}
           />
-          <Typography variant="subtitle2" sx={{ mb: 1, mt: 1 }}>Filtr</Typography>
-          <ToggleButtonGroup value={droneFilter} exclusive onChange={(_, v) => setDroneFilter(v)} size="small" fullWidth>
+
+          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>Kategorie</Typography>
+          <ToggleButtonGroup
+            value={droneFilter}
+            exclusive
+            onChange={(_, v) => setDroneFilter(v)}
+            size="small"
+            fullWidth
+            orientation="vertical"
+            sx={{ mb: 3 }}
+          >
             {['5inch', '2inch', 'whoop'].map((label) => (
-              <ToggleButton key={label} value={label}>{label}</ToggleButton>
+              <ToggleButton
+                key={label}
+                value={label}
+                sx={{
+                  justifyContent: 'flex-start',
+                  pl: 2,
+                  border: 'none',
+                  borderRadius: '8px !important',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    bgcolor: 'primary.main',
+                    color: 'primary.contrastText',
+                    '&:hover': { bgcolor: 'primary.dark' }
+                  }
+                }}
+              >
+                {label}
+              </ToggleButton>
             ))}
           </ToggleButtonGroup>
-          <Chip label={`${filtered.length} videí`} size="small" color="primary" sx={{ mt: 1 }} />
 
           <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Naposledy přidané</Typography>
-          <List dense>
-            {videos.slice(0, 6).map((v) => (
-              <ListItemButton key={v.uid} onClick={() => handleSelect(v)} selected={selected?.uid === v.uid}>
-                <ListItemText primaryTypographyProps={{ noWrap: true }} primary={v.name} secondary={v.droneSize} />
-              </ListItemButton>
-            ))}
-          </List>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="subtitle2" color="text.secondary">Nalezeno</Typography>
+            <Chip label={`${filtered.length}`} size="small" color="primary" variant="outlined" />
+          </Box>
         </Paper>
 
-        {/* Right: centered player + grid below */}
+        {/* Right: Content */}
         <Box>
-          {/* Centered player card */}
-          <Paper elevation={8} sx={{ p: 2, mb: 2 }}>
-            {!selected ? (
-              <Box sx={{ p: 3, textAlign: 'center' }}>
-                <Typography variant="body1" color="text.secondary">Vyber video z panelu vlevo</Typography>
-              </Box>
-            ) : (
-              <>
-                <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 2 }}>
-                  <Box sx={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 2, overflow: 'hidden', boxShadow: 3 }}>
+          {/* Active Player */}
+          <Grow in={!!selected} timeout={500}>
+            <Box sx={{ mb: 6, display: selected ? 'block' : 'none' }}>
+              {selected && (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper',
+                    border: `1px solid ${theme.palette.primary.main}40`,
+                    boxShadow: `0 0 40px -10px ${theme.palette.primary.main}20`
+                  }}
+                >
+                  <Box sx={{ position: 'relative', width: '100%', aspectRatio: '16/9', bgcolor: 'black' }}>
                     <iframe
                       src={`https://iframe.videodelivery.net/${selected.uid}`}
                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
@@ -201,52 +220,129 @@ const VideoArchive = () => {
                       title={selected.name}
                     />
                   </Box>
-                </Box>
-                <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'center' }} justifyContent="space-between" spacing={1} sx={{ maxWidth: 1200, mx: 'auto' }}>
-                  <Typography variant="h5" gutterBottom noWrap>{selected.name}</Typography>
-                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                    <Button startIcon={<DownloadIcon />}>Stáhnout</Button>
-                    <Button startIcon={<ShareIcon />} onClick={() => navigator.clipboard.writeText(window.location.href)}>Sdílet</Button>
-                  </Stack>
-                </Stack>
-                {/* Metadata editor (admin only via key) */}
-                <Paper variant="outlined" sx={{ p: 2, mt: 2 }}>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                    <TextField label="Admin Key" type="password" size="small" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} sx={{ width: { sm: 240 } }} />
-                    <TextField label="Název" size="small" value={selected.name || ''} onChange={(e) => setSelected({ ...selected, name: e.target.value })} fullWidth />
-                    <TextField label="Drone Size" size="small" value={selected.droneSize || ''} onChange={(e) => setSelected({ ...selected, droneSize: e.target.value })} sx={{ width: { sm: 200 } }} />
-                  </Stack>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 1 }}>
-                    <TextField label="Datum" size="small" value={selected.date || ''} onChange={(e) => setSelected({ ...selected, date: e.target.value })} sx={{ width: { sm: 200 } }} />
-                    <TextField label="Lokace" size="small" value={selected.location || ''} onChange={(e) => setSelected({ ...selected, location: e.target.value })} sx={{ width: { sm: 240 } }} />
-                    <TextField label="Kamera" size="small" value={selected.camera || ''} onChange={(e) => setSelected({ ...selected, camera: e.target.value })} sx={{ width: { sm: 240 } }} />
-                  </Stack>
-                  <TextField label="Popis" size="small" value={selected.description || ''} onChange={(e) => setSelected({ ...selected, description: e.target.value })} fullWidth multiline rows={2} sx={{ mt: 1 }} />
-                  <TextField label="Tagy (čárkami)" size="small" value={(selected.tags || []).join(', ')} onChange={(e) => setSelected({ ...selected, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} fullWidth sx={{ mt: 1 }} />
-                  <TextField label="Poznámky" size="small" value={selected.notes || ''} onChange={(e) => setSelected({ ...selected, notes: e.target.value })} fullWidth sx={{ mt: 1 }} />
-                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Button variant="contained" disabled={!adminKey || isSaving} onClick={saveMeta}>Uložit metadata</Button>
-                  </Stack>
-                </Paper>
-              </>
-            )}
-          </Paper>
 
-          {/* Grid of results below */}
+                  <Box sx={{ p: 3 }}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="flex-start" justifyContent="space-between" spacing={2}>
+                      <Box>
+                        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>{selected.name}</Typography>
+                        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                          {selected.droneSize && <Chip label={selected.droneSize} size="small" color="secondary" />}
+                          {selected.date && <Chip label={selected.date} size="small" variant="outlined" />}
+                        </Stack>
+                        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 800 }}>
+                          {selected.description || 'Žádný popis k dispozici.'}
+                        </Typography>
+                      </Box>
+
+                      <Stack direction="row" spacing={1}>
+                        <Button variant="outlined" startIcon={<DownloadIcon />}>Stáhnout</Button>
+                        <Button variant="outlined" startIcon={<ShareIcon />} onClick={() => navigator.clipboard.writeText(window.location.href)}>Sdílet</Button>
+                      </Stack>
+                    </Stack>
+
+                    {/* Admin Section Toggle */}
+                    <Box sx={{ mt: 4 }}>
+                      <Button
+                        size="small"
+                        onClick={() => {
+                          const el = document.getElementById('admin-panel');
+                          if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                        }}
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        Upravit Metadata (Admin)
+                      </Button>
+
+                      <Box id="admin-panel" sx={{ display: 'none', mt: 2, p: 2, bgcolor: 'rgba(0,0,0,0.2)', borderRadius: 2 }}>
+                        <Stack spacing={2}>
+                          <TextField label="Admin Key" type="password" size="small" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} fullWidth />
+                          <TextField label="Název" size="small" value={selected.name} onChange={(e) => setSelected({ ...selected, name: e.target.value })} fullWidth />
+                          <Button variant="contained" disabled={!adminKey || isSaving} onClick={saveMeta}>Uložit</Button>
+                        </Stack>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Paper>
+              )}
+            </Box>
+          </Grow>
+
+          {/* Grid of videos */}
+          <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+            {search ? 'Výsledky hledání' : 'Všechna videa'}
+          </Typography>
+
           <Box sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' },
-            gap: 2,
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', xl: 'repeat(3, 1fr)' },
+            gap: 3,
           }}>
             {filtered.map((v) => (
-              <Card key={v.uid} onClick={() => handleSelect(v)} sx={{ cursor: 'pointer' }}>
-                <CardMedia component="img" src={v.thumbnail} alt={v.name} sx={{ height: 140, objectFit: 'cover' }} />
-                <CardContent sx={{ py: 1.5 }}>
-                  <Typography variant="subtitle2" noWrap>{v.name}</Typography>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
-                    {v.droneSize && <Chip label={v.droneSize} size="small" />}
-                    {v.date && <Chip label={v.date} size="small" variant="outlined" />}
-                  </Stack>
+              <Card
+                key={v.uid}
+                onClick={() => handleSelect(v)}
+                sx={{
+                  cursor: 'pointer',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&:hover .play-icon': {
+                    opacity: 1,
+                    transform: 'translate(-50%, -50%) scale(1.1)',
+                  },
+                  '&:hover .thumbnail': {
+                    transform: 'scale(1.05)',
+                  }
+                }}
+              >
+                <Box sx={{ position: 'relative', pt: '56.25%', overflow: 'hidden' }}>
+                  <CardMedia
+                    component="img"
+                    src={v.thumbnail}
+                    alt={v.name}
+                    className="thumbnail"
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease',
+                    }}
+                  />
+                  <Box
+                    className="play-icon"
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      bgcolor: 'rgba(0,0,0,0.6)',
+                      backdropFilter: 'blur(4px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0,
+                      transition: 'all 0.3s ease',
+                      border: '1px solid rgba(255,255,255,0.2)'
+                    }}
+                  >
+                    <PlayArrowIcon sx={{ color: 'white' }} />
+                  </Box>
+                  <Box sx={{ position: 'absolute', bottom: 8, right: 8 }}>
+                    <Chip label={v.droneSize || 'FPV'} size="small" sx={{ bgcolor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', height: 24 }} />
+                  </Box>
+                </Box>
+
+                <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                  <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, mb: 0.5 }}>{v.name}</Typography>
+                  <Typography variant="body2" color="text.secondary" noWrap>{v.date || 'Neznámé datum'}</Typography>
                 </CardContent>
               </Card>
             ))}

@@ -3,7 +3,7 @@ import useResourceStore from '@/stores/useResourceStore';
 import { getBuildingConfig } from '@/data/buildingData';
 import { Paper, Typography, Select, MenuItem, FormControl, InputLabel, Box, Chip, Stack } from '@mui/material';
 
-const BUILDINGS: GameObject['type'][] = ['farm', 'mine', 'house', 'warehouse', 'market'];
+const BUILDINGS: GameObject['type'][] = ['farm', 'mine', 'house', 'warehouse', 'market', 'bakery', 'blacksmith', 'lumbermill', 'tavern'];
 
 export default function BuildMenu() {
   const { selectedBuildingType, setSelectedBuildingType } = useSandboxStore();
@@ -14,8 +14,8 @@ export default function BuildMenu() {
   };
 
   return (
-    <Paper 
-      elevation={3} 
+    <Paper
+      elevation={3}
       sx={{
         position: 'absolute',
         bottom: 16,
@@ -59,9 +59,9 @@ export default function BuildMenu() {
               <MenuItem key={b} value={b} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
                 <span>{b.charAt(0).toUpperCase() + b.slice(1)}</span>
                 <Box component="span" sx={{ opacity: affordable ? 1 : 0.5, fontSize: 12 }}>
-                  {['wood','stone','food','gold']
+                  {['wood', 'stone', 'food', 'gold']
                     .filter((k) => (cost as any)[k])
-                    .map((k) => `${k[0].toUpperCase()+k.slice(1)}:${(cost as any)[k]}`)
+                    .map((k) => `${k[0].toUpperCase() + k.slice(1)}:${(cost as any)[k]}`)
                     .join(' ')}
                 </Box>
               </MenuItem>

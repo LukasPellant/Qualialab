@@ -74,5 +74,67 @@
       "gold": 30
     },
     "storage": 0
+  },
+  "bakery": {
+    "jobs": 1,
+    "base": {
+      "yield": 15,
+      "cycle": 4,
+      "resource": "food",
+      "inputResource": "food",
+      "inputAmount": 10,
+      "outputBonus": 1.5
+    },
+    "cost": {
+      "wood": 70,
+      "stone": 30,
+      "gold": 20
+    },
+    "storage": 0
+  },
+  "blacksmith": {
+    "jobs": 1,
+    "base": {
+      "yield": 5,
+      "cycle": 8,
+      "resource": "gold",
+      "inputResource": "stone",
+      "inputAmount": 20
+    },
+    "cost": {
+      "wood": 60,
+      "stone": 80,
+      "gold": 40
+    },
+    "storage": 0
+  },
+  "lumbermill": {
+    "jobs": 1,
+    "base": {
+      "yield": 15,
+      "cycle": 5,
+      "resource": "wood",
+      "inputResource": "wood",
+      "inputAmount": 10,
+      "outputBonus": 1.5
+    },
+    "cost": {
+      "wood": 100,
+      "stone": 40
+    },
+    "storage": 0
+  },
+  "tavern": {
+    "jobs": 1,
+    "base": {
+      "populationCap": 3,
+      "happinessBonus": 0.2
+    },
+    "cost": {
+      "wood": 80,
+      "stone": 30,
+      "gold": 50
+    },
+    "storage": 0
   }
 }

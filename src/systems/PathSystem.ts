@@ -41,7 +41,7 @@ export function runPathSystem(deltaSeconds: number) {
           
           if (!updated) updated = objects.slice();
           const clone = { ...w } as GameObject;
-          clone.path = newPath && newPath.length > 0 ? newPath.slice(1) : null; // skip current position
+          clone.path = newPath && newPath.length > 0 ? (newPath.slice(1) as [number, number][]) : undefined; // skip current position
           (clone as any).stuckTime = 0;
           
           if (!clone.path || clone.path.length === 0) {

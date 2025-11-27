@@ -2,14 +2,17 @@ import useResourceStore from '../stores/useResourceStore';
 import useSandboxStore from '../stores/useSandboxStore';
 import usePopulationStore from '@/stores/usePopulationStore';
 import useMarketStore from '@/stores/useMarketStore';
+import useLogStore from '@/stores/useLogStore';
 import { getBuildingConfig, getUpgradeConfig } from '@/data/buildingData';
 
 export function runResourceSystem() {
   const { objects, setObjects, updateRates } = useSandboxStore.getState() as any;
   const population = usePopulationStore.getState();
   const resources = useResourceStore.getState();
+  const sandbox = useSandboxStore.getState() as any;
   const market = useMarketStore.getState();
-  
+  const log = useLogStore.getState().addLog;
+
   // Calculate total storage capacity
   const totalStorage = objects.reduce((acc: any, obj: any) => {
     if (obj.storageMax) {
@@ -29,7 +32,7 @@ export function runResourceSystem() {
 
   let rates = {
     foodPerMin: 0,
-    woodPerMin: 0, 
+    woodPerMin: 0,
     stonePerMin: 0,
     goldPerMin: 0,
     consumptionPerMin: 0,
@@ -57,8 +60,16 @@ export function runResourceSystem() {
 
     if (obj.type === 'farm' || obj.type === 'mine' || obj.type === 'forest') {
       const workers = obj.assignedWorkers?.length ?? 0;
-      obj.isActive = workers > 0 && !isStorageFull(config.base.resource || 'food');
-      
+      const resourceType = config.base.resource || 'food';
+      const full = isStorageFull(resourceType);
+
+      if (full && obj.isActive) {
+        // Only log once when becoming full/inactive to avoid spam
+        // We could track previous state, but for now we'll rely on UI indicators
+      }
+
+      obj.isActive = workers > 0 && !full;
+
       // Calculate production rate per minute
       if (obj.isActive && config.base.resource) {
         const cycleTimeSeconds = (config.base.cycle || 60) * modifiers.cycle;
@@ -90,7 +101,7 @@ export function runResourceSystem() {
   // Calculate consumption rate
   const workersCount = updated.filter((o: any) => o.type === 'worker').length;
   const baseConsumptionPerWorker = 1.2; // per minute per worker
-  
+
   // Apply global consumption modifiers from shrines
   let globalConsumptionMod = 1;
   updated.forEach((obj: any) => {
@@ -103,24 +114,53 @@ export function runResourceSystem() {
       });
     }
   });
-  
+
   rates.consumptionPerMin = workersCount * baseConsumptionPerWorker * globalConsumptionMod;
-  
+
   // Apply consumption every second
   const foodConsumptionPerSecond = rates.consumptionPerMin / 60;
   if (foodConsumptionPerSecond > 0) {
     resources.addResources({ food: -foodConsumptionPerSecond } as any);
   }
 
+  // Derive measured net food rate from snapshot to avoid mismatch between predicted rates and actual state
+  const prevSnap = sandbox.lastResourceSnapshot as { wood: number; stone: number; food: number; gold: number } | null;
+  const currentFood = resources.food;
+  let netFoodPerMin = rates.foodPerMin - rates.consumptionPerMin;
+  if (prevSnap) {
+    const deltaFood = currentFood - prevSnap.food;
+    // Since this system runs every 1s, scale to per-minute
+    netFoodPerMin = deltaFood * 60;
+  } else {
+    // Initialize snapshot on first run
+    const snap = { wood: resources.wood, stone: resources.stone, food: resources.food, gold: resources.gold };
+    (useSandboxStore as any).setState({ lastResourceSnapshot: snap });
+  }
+
+  // Smooth the displayed net rate to avoid flicker from discrete production cycles
+  const prevNet = (sandbox.rates?.netFoodPerMin as number | undefined) ?? netFoodPerMin;
+  const alpha = 0.25; // EMA weight
+  const smoothedNet = prevNet * (1 - alpha) + netFoodPerMin * alpha;
+
   // Update rates in store
-  updateRates(rates);
+  updateRates({ ...rates, netFoodPerMin: smoothedNet });
+
+  // Refresh snapshot for next tick
+  (useSandboxStore as any).setState({
+    lastResourceSnapshot: {
+      wood: resources.wood,
+      stone: resources.stone,
+      food: resources.food,
+      gold: resources.gold,
+    },
+  });
 
   // Update population cap from existing buildings
   const capFromBuildings = updated.reduce((acc: number, obj: any) => {
     const config = getBuildingConfig(obj.type);
     return acc + (config?.base.populationCap || 0);
   }, 0);
-  
+
   if (capFromBuildings !== population.cap) {
     population.setCap(capFromBuildings || population.cap);
   }
@@ -128,15 +168,16 @@ export function runResourceSystem() {
   // Updated auto-recruit logic - require better food situation
   const netFoodRate = rates.foodPerMin - rates.consumptionPerMin;
   const canStartRecruit =
-    population.recruitTimer <= 0 && 
-    population.idle < population.cap && 
-    resources.food >= 60 && 
+    population.recruitTimer <= 0 &&
+    population.idle < population.cap &&
+    resources.food >= 60 &&
     resources.gold >= 10 &&
     netFoodRate > 0.8;
-    
+
   if (canStartRecruit) {
     resources.addResources({ food: -40, gold: -10 } as any);
     population.startRecruit(30);
+    log('Recruiting new villager...', 'info');
   }
 
   // Progress recruit timer; on completion add +1 idle
@@ -145,6 +186,7 @@ export function runResourceSystem() {
     const after = usePopulationStore.getState();
     if (after.recruitTimer === 0) {
       after.setIdle(after.idle + 1);
+      log('New villager arrived!', 'success');
     }
   }
 

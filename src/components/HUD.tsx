@@ -49,8 +49,9 @@ export default function HUD() {
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="body2">Food: {Math.floor(food)}</Typography>
-            <Typography variant="caption" color={(rates.foodPerMin - rates.consumptionPerMin) >= 0 ? 'lightgreen' : 'lightcoral'}>
-              {(rates.foodPerMin - rates.consumptionPerMin) >= 0 ? '↑' : '↓'}{Math.abs(rates.foodPerMin - rates.consumptionPerMin).toFixed(1)}/min
+            <Typography variant="caption" color={(rates.netFoodPerMin ?? (rates.foodPerMin - rates.consumptionPerMin)) >= 0 ? 'lightgreen' : 'lightcoral'}>
+              {(rates.netFoodPerMin ?? (rates.foodPerMin - rates.consumptionPerMin)) >= 0 ? '↑' : '↓'}
+              {Math.abs(rates.netFoodPerMin ?? (rates.foodPerMin - rates.consumptionPerMin)).toFixed(1)}/min
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

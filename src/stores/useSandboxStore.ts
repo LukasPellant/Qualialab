@@ -7,7 +7,7 @@ export type Task =
 
 export interface GameObject {
   id: string;
-  type: 'worker' | 'building' | 'farm' | 'forest' | 'mine' | 'mountain' | 'house' | 'townhall' | 'warehouse' | 'market';
+  type: 'worker' | 'building' | 'farm' | 'forest' | 'mine' | 'mountain' | 'house' | 'townhall' | 'warehouse' | 'market' | 'bakery' | 'blacksmith' | 'lumbermill' | 'tavern';
   position: [number, number, number];
   rotation?: [number, number, number];
   path?: [number, number][]; // grid coordinates [x,z]
@@ -57,7 +57,9 @@ export interface SandboxState {
     stonePerMin: number;
     goldPerMin: number;
     consumptionPerMin: number;
+    netFoodPerMin?: number;
   };
+  lastResourceSnapshot: { wood: number; stone: number; food: number; gold: number } | null;
   reset: () => void;
   setObjects: (objects: GameObject[] | ((prev: GameObject[]) => GameObject[])) => void;
   addObject: (obj: GameObject) => void;
@@ -70,43 +72,43 @@ export interface SandboxState {
 }
 
 const getInitialObjects = (): GameObject[] => [
-  { 
-    id: 'town1', 
-    type: 'townhall', 
+  {
+    id: 'town1',
+    type: 'townhall',
     position: [0, 0, 10],
     jobs: { max: 0, assigned: 0 },
     storage: { wood: 0, stone: 0, food: 0, gold: 0 },
     storageMax: { wood: 500, stone: 500, food: 500, gold: 500 },
     upgrades: []
   },
-  { 
-    id: 'farm1', 
-    type: 'farm', 
-    position: [-10, 0, -4], 
-    workerCapacity: 2, 
+  {
+    id: 'farm1',
+    type: 'farm',
+    position: [-10, 0, -4],
+    workerCapacity: 2,
     assignedWorkers: [],
     jobs: { max: 2, assigned: 0 },
     storage: { food: 0 },
     storageMax: { food: 0 },
     upgrades: []
   },
-  { 
-    id: 'forest1', 
-    type: 'forest', 
-    position: [12, 0, -10], 
-    stock: { wood: 300 }, 
-    workerCapacity: 3, 
+  {
+    id: 'forest1',
+    type: 'forest',
+    position: [12, 0, -10],
+    stock: { wood: 300 },
+    workerCapacity: 3,
     assignedWorkers: [],
     jobs: { max: 2, assigned: 0 },
     storage: { wood: 0 },
     storageMax: { wood: 0 },
     upgrades: []
   },
-  { 
-    id: 'mine1', 
-    type: 'mine', 
-    position: [-14, 0, 10], 
-    workerCapacity: 2, 
+  {
+    id: 'mine1',
+    type: 'mine',
+    position: [-14, 0, 10],
+    workerCapacity: 2,
     assignedWorkers: [],
     jobs: { max: 2, assigned: 0 },
     storage: { stone: 0 },
@@ -131,9 +133,10 @@ const useSandboxStore = create<SandboxState>((set) => ({
     goldPerMin: 0,
     consumptionPerMin: 0,
   },
+  lastResourceSnapshot: null,
   reset: () => {
     const objs = getInitialObjects();
-    set({ 
+    set({
       objects: objs,
       openMarketId: null,
       selectedBuildingId: null,
@@ -146,6 +149,9 @@ const useSandboxStore = create<SandboxState>((set) => ({
       }
     });
     useResourceStore.getState().reset();
+    // Initialize snapshot to current resources after reset
+    const res = useResourceStore.getState();
+    set({ lastResourceSnapshot: { wood: res.wood, stone: res.stone, food: res.food, gold: res.gold } });
     // Reset population based on buildings present
     const cap = objs.reduce((acc, o) => acc + (o.type === 'townhall' ? 10 : o.type === 'house' ? 5 : 0), 0);
     // Lazy import to avoid cycle
@@ -166,8 +172,8 @@ const useSandboxStore = create<SandboxState>((set) => ({
   setSelectedBuildingId: (id) => set({ selectedBuildingId: id }),
   updateRates: (rates) => set((state) => ({ rates: { ...state.rates, ...rates } })),
   addUpgradeToBuilding: (buildingId, upgradeId) => set((state) => ({
-    objects: state.objects.map(obj => 
-      obj.id === buildingId 
+    objects: state.objects.map(obj =>
+      obj.id === buildingId
         ? { ...obj, upgrades: [...(obj.upgrades || []), upgradeId] }
         : obj
     )

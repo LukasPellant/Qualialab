@@ -12,9 +12,18 @@ import WorkerPanel from '../components/WorkerPanel';
 import GameLoopUpdater from '../components/GameLoopUpdater';
 import MarketDialog from '../components/MarketDialog';
 import BuildingPanel from '../components/BuildingPanel';
+import CommandLog from '../components/CommandLog';
 import { startGameLoop } from '../systems/TickSystem';
+import { GameInterface } from '../llm/GameInterface';
 
 type PlayerMode = 'god' | 'character';
+
+// Expose GameInterface to window for LLM/Console access
+declare global {
+  interface Window {
+    GameInterface: typeof GameInterface;
+  }
+}
 
 export default function SandboxPage() {
   const { objects, reset } = useSandboxStore();
@@ -51,6 +60,7 @@ export default function SandboxPage() {
 
   useEffect(() => {
     startGameLoop();
+    window.GameInterface = GameInterface;
   }, []);
 
   return (
@@ -94,6 +104,11 @@ export default function SandboxPage() {
                 return <Warehouse key={id} id={id} {...rest} />;
               case 'market':
                 return <Market key={id} id={id} {...rest} />;
+              case 'bakery':
+              case 'blacksmith':
+              case 'lumbermill':
+              case 'tavern':
+                return <Building key={id} {...rest} />;
               default:
                 return null;
             }
@@ -130,6 +145,7 @@ export default function SandboxPage() {
       <WorkerPanel />
       <MarketDialog />
       <BuildingPanel />
+      <CommandLog />
     </Box>
   );
 }

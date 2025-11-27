@@ -1,0 +1,67 @@
+!První část!
+
+
+
+!druhá část:! 
+napíšeš mi tedy teď strukturu hry? zatím máme renderování, hud, jednoduchý systém pracovníků budov, rozdělaný pathfinnding system. Potřebuju abys to shrnul a napsal co dál, bude to číst codex a v něm model od openai takže nepotřebujeme uplně přesné technické provedení ale spíše shrnutí. 
+You said:
+Zkus vypočítat kolik přibližně by mě mohlo stát kdybych vytvořil detailní popis té simulace, a nechal první hratelnou verzi napsat claude code pomocí claude sonnet 4 nebo 3.7 v claude code
+You said:
+Zkus vypočítat kolik přibližně by mě mohlo stát kdybych vytvořil detailní popis té simulace, a nechal první hratelnou verzi napsat claude code pomocí claude sonnet 4 nebo 3.7 v claude code
+You said:
+Seš si tím jistý? Když jsem nechal pracovat codex od open ai udělat jednu změnu zabralo několik milionů tokenů, nezapomínás na něco?
+You said:
+vytvoř jeden nový prompt který shrnuje vše co jsem do teď dělali, systémy atd. je nový agentický chatgpt 5 model který by to mohl zvádnou celé najednou odznova
+You said:
+ještě jednou, nevytvářej prompt ale spíše detailní popis systémů jak mají fungovat atd
+You said:
+Mám zajímavý nápad, pokud bychom použili api gpt 5 na řízení systému, během hry by ai postavy doporučovali nové funkce ve hře, budovy, jednotky, systémy a každý den by gpt 5 abalyzovalo nejlepší, udělalo nový git branch, a imolementovalo novou funkci, měli bychom samo rozvíjející hru. Nějaké myšlenky?
+You said:
+A jak zařídím aby gpt 5 přes api autonomne pracovalo, nějaký script na pc který pošle prompt přes api v daný čas?
+You said:
+Jak pak zařídím aby to převzal agent v cursoru a implementoval?
+You said:
+dobře teď navrhni content update: více budoov, nastav ceny budov, hlavní budova kterou má človek od začátku kde může po nějaké době verbovt workery. pool lidí pro workery a vojaky bude do budoucna stejný, popoš to a já to pak dám dál
+You said:
+vytvoř prompt pro vytvoření 3d modelů pro postavičky. Nejdříve styl, tedy jednoduchý low poly fantasy styl. poté budeme geenrovat jednotlivé modely
+You said:
+přeložř d oangličtiny prosím
+You said:
+potřebuji aby prompt byl v jednom, jak stylový, takj teď na workera, v angličtině a maximálně 800 znaků prosím
+You said:
+vytvoř mi teď prompt na townhall
+You said:
+popišš spíš jak to má vypadat než technické detaily, ty v promptu nejsou důležité
+You said:
+teď farmu, důl, lesík, po jednom a každá prompt max 800 chars
+You said:
+ahoj, tady je shrnutí co zatím sadnbox umí: What the sandbox already does
+3D world and controls
+Renders a 64×64 ground with borders, lit scene, and performance stats.
+Camera with orbit controls in God mode. Press F toggles mode label (Character mode is WIP). Press R resets the sandbox.
+Seeded world
+Starts with a townhall, farm, forest, mine, and 2 idle workers at defined positions.
+UI/HUD
+Top HUD shows tick, resources (wood/stone/food/gold), and population (idle/cap, recruit timer).
+Build Menu (bottom-left): pick farm, mine, or house; shows costs and whether you can afford it.
+Worker Panel (bottom-right): shows buildings, capacity/assigned; add/remove worker assignment per building. Town Hall dialog spawns a worker using 1 idle population.
+Building placement
+Select in Build Menu → green ghost preview → click ground to place if affordable.
+Deducts resources on placement, spawns building, blocks that grid cell for pathfinding.
+Workers and tasks
+From the Worker Panel, assigning a worker sets a “gather” task to the chosen farm/mine/forest.
+A* pathfinding on a 2D grid; workers move at ~1.5 m/s; per-frame movement smoothing; state transitions idle → moving → working.
+On arrival, workers produce:
+Forest: consumes stock.wood and adds wood.
+Mine: adds stone.
+Farm: adds food.
+Workers remain at their assigned site and keep working in cycles.
+Economy and population
+Forest passively regrows wood stock up to a cap.
+Food consumption per worker per second; farms add passive food while active to balance consumption.
+Population cap from buildings: townhall +10, house +5.
+Auto-recruit: if under cap and have ≥40 food and ≥10 gold, a 30s recruit starts; when done, +1 idle. Clicking Town Hall can convert idle → in-world worker.
+
+vytvoř plán pro ai sonnet 4 v cursoru jak vylepšit potřebné systeémy? podle mě je potřeba balance resourců, vylepšení budov, dodatečné upgradovací budovy jako jsou plains k farmám, šachta k dolu, kulturní budovy k domům, poté nějaké ekonomické záležitosti jako je tržiště atd? klidně to pořádně promysliu
+
+ChatGPT can make mistakes. Check importa

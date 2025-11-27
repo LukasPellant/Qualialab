@@ -4,7 +4,29 @@ import { getBuildingConfig, getUpgradeConfig } from '@/data/buildingData';
 
 export function runWorkerSystem() {
   const { objects, setObjects } = useSandboxStore.getState() as any;
-  const { addResources } = useResourceStore.getState() as any;
+  const resourceState = useResourceStore.getState() as any;
+
+  // Compute total storage capacity across all buildings for each resource type
+  const totalStorage = objects.reduce((acc: any, obj: any) => {
+    if (obj.storageMax) {
+      Object.keys(obj.storageMax).forEach((resource) => {
+        acc[resource] = (acc[resource] || 0) + (obj.storageMax[resource] || 0);
+      });
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  const addWithCap = (resource: 'wood' | 'stone' | 'food' | 'gold', amount: number) => {
+    if (amount <= 0) {
+      resourceState.addResources({ [resource]: amount } as any);
+      return;
+    }
+    const cap = totalStorage[resource] ?? Infinity;
+    const current = (resourceState as any)[resource] ?? 0;
+    const allowed = Math.max(0, cap - current);
+    const delta = Math.min(amount, allowed);
+    if (delta > 0) resourceState.addResources({ [resource]: delta } as any);
+  };
 
   let updated: GameObject[] | null = null;
 
@@ -51,11 +73,11 @@ export function runWorkerSystem() {
               targetClone = { ...(updated as GameObject[])[tIdx] } as GameObject;
               targetClone.stock = { ...(targetClone.stock || {}), wood: available - taken };
               (updated as GameObject[])[tIdx] = targetClone;
-              addResources({ wood: taken });
+              addWithCap('wood', taken);
             } else if (target?.type === 'mine') {
-              addResources({ stone: yield_ });
+              addWithCap('stone', yield_);
             } else if (target?.type === 'farm') {
-              addResources({ food: yield_ });
+              addWithCap('food', yield_);
             }
 
             if (!updated) updated = objects.slice();
